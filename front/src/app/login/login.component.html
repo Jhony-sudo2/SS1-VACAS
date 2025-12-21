@@ -1,0 +1,243 @@
+<div class="min-h-screen bg-slate-900 flex items-center justify-center px-4">
+  <div
+    class="max-w-5xl w-full grid md:grid-cols-2 bg-slate-950/60 rounded-2xl shadow-2xl overflow-hidden border border-slate-800"
+  >
+    <!-- PANEL IZQUIERDO (branding / info) -->
+    <div
+      class="hidden md:flex flex-col justify-between bg-gradient-to-br from-sky-500 via-blue-600 to-slate-900 p-8 text-slate-50"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-slate-900/20 flex items-center justify-center text-lg font-semibold"
+        >
+          SS
+        </div>
+        <div class="text-sm">
+          <p class="font-semibold tracking-wide">SS1</p>
+          <p class="text-slate-200/80 text-xs">Sistema de Seminario</p>
+        </div>
+      </div>
+
+      <div class="mt-10 space-y-4">
+        <h1 class="text-3xl font-semibold leading-snug">
+          Bienvenido de nuevo
+          <span class="block text-slate-100/80 text-base mt-2">
+            Inicia sesión para continuar con tus actividades.
+          </span>
+        </h1>
+
+        <ul class="space-y-2 text-sm text-slate-100/80">
+          <li class="flex items-start gap-2">
+            <span class="mt-1 inline-flex h-4 w-4 rounded-full bg-slate-900/30"></span>
+            <span>Panel de control con acceso rápido a tus módulos.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 inline-flex h-4 w-4 rounded-full bg-slate-900/30"></span>
+            <span>Gestión de usuarios, créditos y configuraciones.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 inline-flex h-4 w-4 rounded-full bg-slate-900/30"></span>
+            <span>Interfaz moderna al estilo Sakai, totalmente responsive.</span>
+          </li>
+        </ul>
+      </div>
+
+      <p class="text-xs text-slate-100/70 mt-8">
+        © {{ currentYear }} SS1 · Todos los derechos reservados
+      </p>
+    </div>
+
+    <!-- PANEL DERECHO (formularios) -->
+    <div class="bg-slate-900/90 text-slate-100 p-7 md:p-10">
+      <!-- Encabezado (cambia según paso) -->
+      <div class="mb-8 md:mb-10">
+        <!-- Logo solo en móvil -->
+        <div class="flex md:hidden items-center gap-2 mb-5">
+          <div
+            class="w-9 h-9 rounded-xl bg-sky-500 flex items-center justify-center text-slate-900 font-semibold"
+          >
+            SS
+          </div>
+          <div class="text-sm">
+            <p class="font-semibold tracking-wide">SS1</p>
+            <p class="text-slate-400 text-xs">Sistema de Seminario</p>
+          </div>
+        </div>
+
+        <h2 class="text-2xl font-semibold">
+          {{ step === 'CREDENCIALES' ? 'Iniciar sesión' : 'Verificación en dos pasos' }}
+        </h2>
+        <p class="text-sm text-slate-400 mt-1">
+          {{
+            step === 'CREDENCIALES'
+              ? 'Ingresa tus credenciales para acceder al sistema.'
+              : 'Ingresa el código enviado a tu correo para completar el inicio de sesión.'
+          }}
+        </p>
+      </div>
+
+      <!-- PASO 1: Usuario / contraseña -->
+      <form
+        *ngIf="step === 'CREDENCIALES'"
+        class="space-y-5"
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmitLogin()"
+        novalidate
+      >
+        <!-- Email -->
+        <div class="space-y-1.5">
+          <label for="email" class="block text-sm font-medium text-slate-200">
+            Correo electrónico
+          </label>
+          <div
+            class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition-colors"
+          >
+            <i class="pi pi-envelope text-slate-400 text-sm"></i>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="w-full bg-transparent border-0 outline-none text-sm placeholder:text-slate-500"
+              placeholder="usuario@ejemplo.com"
+            />
+          </div>
+          <p
+            class="text-xs text-red-400"
+            *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          >
+            Ingresa un correo válido.
+          </p>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-1.5">
+          <label for="password" class="block text-sm font-medium text-slate-200">
+            Contraseña
+          </label>
+          <div
+            class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition-colors"
+          >
+            <i class="pi pi-lock text-slate-400 text-sm"></i>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              class="w-full bg-transparent border-0 outline-none text-sm placeholder:text-slate-500"
+              placeholder="••••••••"
+            />
+          </div>
+          <p
+            class="text-xs text-red-400"
+            *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          >
+            La contraseña es requerida.
+          </p>
+        </div>
+
+        <!-- Olvidé mi contraseña -->
+        <div class="flex items-center justify-end gap-4 text-xs">
+          <button
+            type="button"
+            class="text-sky-400 hover:text-sky-300 font-medium"
+            (click)="onForgotPassword()"
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+        <div class="flex items-center justify-end gap-4 text-xs">
+          <button
+            type="button"
+            class="text-sky-400 hover:text-sky-300 font-medium"
+            (click)="onForgotPassword()"
+          >
+            ¿No tienes un usuario? Registrate!
+          </button>
+        </div>
+
+        <!-- Botón de login -->
+        <button
+          type="submit"
+          class="w-full inline-flex items-center justify-center rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-900 font-semibold text-sm py-2.5 mt-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="loginForm.invalid || loading"
+        >
+          <span *ngIf="!loading">Ingresar</span>
+          <span *ngIf="loading" class="inline-flex items-center gap-2">
+            <span
+              class="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"
+            ></span>
+            Procesando...
+          </span>
+        </button>
+
+        <!-- Pie del card -->
+        <div class="pt-2 text-xs text-slate-400 text-center">
+          <span>Uso interno · Seminario 1</span>
+        </div>
+      </form>
+
+      <!-- PASO 2: Código A2F -->
+      <form
+        *ngIf="step === 'A2F'"
+        class="space-y-5"
+        [formGroup]="codigoForm"
+        (ngSubmit)="onSubmitCodigo()"
+        novalidate
+      >
+        <p class="text-sm text-slate-300 mb-2" *ngIf="infoMessage">
+          {{ infoMessage }}
+        </p>
+
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-slate-200">
+            Código de verificación
+          </label>
+          <input
+            type="text"
+            formControlName="codigo"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+            placeholder="Ingresa el código recibido"
+          />
+          <p
+            class="text-xs text-red-400"
+            *ngIf="codigoForm.get('codigo')?.invalid && codigoForm.get('codigo')?.touched"
+          >
+            El código es requerido.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400 mt-1">
+          <button
+            type="button"
+            (click)="volverAlPrimerPaso()"
+            class="hover:text-sky-400"
+          >
+            Cambiar usuario / contraseña
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full inline-flex items-center justify-center rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-900 font-semibold text-sm py-2.5 mt-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          [disabled]="codigoForm.invalid || loading"
+        >
+          <span *ngIf="!loading">Confirmar código</span>
+          <span *ngIf="loading" class="inline-flex items-center gap-2">
+            <span
+              class="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"
+            ></span>
+            Procesando...
+          </span>
+        </button>
+
+        <div class="pt-2 text-xs text-slate-400 text-center">
+          <span>Verificación en dos pasos activa</span>
+        </div>
+      </form>
+
+      <!-- Mensaje de error general -->
+      <p *ngIf="errorMessage" class="text-xs text-red-400 text-center mt-3">
+        {{ errorMessage }}
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,239 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-5xl mx-auto">
+
+    <!-- CARD PRINCIPAL -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+
+      <!-- HEADER -->
+      <div class="p-5 flex items-start justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">
+            {{ modoConfirmacion ? 'Confirmar correo' : 'Crear paciente' }}
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">
+            {{ modoConfirmacion
+              ? 'Ingresa el código que recibiste en tu correo.'
+              : 'Completa los datos de usuario y paciente.' }}
+          </p>
+        </div>
+
+        <button
+          *ngIf="modoConfirmacion"
+          class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+          (click)="volverAFormulario()">
+          Volver
+        </button>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- FORM CREAR -->
+      <div *ngIf="!modoConfirmacion" class="p-5 space-y-6">
+
+        <!-- Usuario -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Usuario</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Correo</label>
+              <input
+                type="email"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="usuario.email"
+                placeholder="correo@dominio.com" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Contraseña</label>
+              <input
+                type="password"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="usuario.password"
+                placeholder="********" />
+            </div>
+
+            <div class="flex items-center gap-3 mt-2">
+              <input
+                type="checkbox"
+                class="h-4 w-4 accent-emerald-600"
+                [(ngModel)]="usuario.a2f" />
+              <span class="text-slate-200 text-sm font-semibold">A2F</span>
+            </div>
+
+            <div class="flex items-center gap-3 mt-2">
+              <input
+                type="checkbox"
+                class="h-4 w-4 accent-emerald-600"
+                [(ngModel)]="usuario.estado" />
+              <span class="text-slate-200 text-sm font-semibold">Usuario activo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paciente -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Paciente</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Nombre</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.nombre"
+                placeholder="Nombre completo" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha de nacimiento</label>
+              <input
+                type="date"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.fechaNacimiento" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Género</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.genero">
+                <option [ngValue]="true">Masculino</option>
+                <option [ngValue]="false">Femenino</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Estado civil</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.estadoCivil">
+                <option [ngValue]="false">Soltero</option>
+                <option [ngValue]="true">Casado</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Dirección</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.direccion"
+                placeholder="Dirección" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Nivel educativo</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.nivelEducativo"
+                placeholder="Ej. Diversificado / Universidad" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Teléfono</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.telefono"
+                placeholder="####-####" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Persona de emergencia</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.personEmergencia"
+                placeholder="Nombre del contacto" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Teléfono de emergencia</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.telefonoEmergencia"
+                placeholder="####-####" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Procedencia</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="paciente.procedencia"
+                placeholder="Ej. Zona / Municipio / Departamento" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
+          <button
+            class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="loadingCrear"
+            (click)="crearPaciente()">
+            <span *ngIf="!loadingCrear">Crear paciente</span>
+            <span *ngIf="loadingCrear" class="flex items-center gap-2">
+              <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- FORM CONFIRMAR -->
+      <div *ngIf="modoConfirmacion" class="p-5">
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Confirmación de correo</h3>
+          <p class="text-slate-400 text-sm mt-1">
+            Ingresa el código enviado al correo <span class="text-slate-200 font-semibold">{{ usuario.email }}</span>.
+          </p>
+
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Código</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100
+                       px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="codigo"
+                placeholder="Ej. 123456" />
+            </div>
+
+            <button
+              class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+              [disabled]="loadingConfirm"
+              (click)="confirmarCorreo()">
+              <span *ngIf="!loadingConfirm">Confirmar</span>
+              <span *ngIf="loadingConfirm" class="flex items-center gap-2">
+                <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                Validando...
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

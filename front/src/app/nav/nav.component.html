@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-slate-100 flex flex-col">
+  <!-- TOPBAR -->
+  <header class="flex items-center justify-between h-16 px-4 md:px-6 bg-slate-800 text-slate-100 shadow z-30">
+    <!-- Botón hamburguesa (solo móvil) -->
+    <button type="button"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-md hover:bg-slate-700 md:hidden"
+      (click)="toggleSidebar()">
+      <span class="sr-only">Abrir menú</span>
+      <span class="block w-5 h-0.5 bg-slate-100 mb-1"></span>
+      <span class="block w-5 h-0.5 bg-slate-100 mb-1"></span>
+      <span class="block w-5 h-0.5 bg-slate-100"></span>
+    </button>
+
+    <!-- Logo / título -->
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center text-white font-semibold">
+        SS
+      </div>
+      <span class="font-semibold tracking-wide">SS1</span>
+    </div>
+
+    <!-- Acciones derecha -->
+    <div class="flex items-center gap-3">
+      <button type="button"
+        class="hidden md:inline-flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-700">
+        <i class="pi pi-bell text-sm"></i>
+      </button>
+      <button type="button"
+        class="hidden md:inline-flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-700">
+        <i class="pi pi-envelope text-sm"></i>
+      </button>
+
+      <div class="flex items-center gap-2 pl-3 border-l border-slate-600">
+        <div class="text-sm leading-tight">
+          <p class="font-medium">Usuario</p>
+          <p class="text-xs text-slate-300">Rol</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-xs font-semibold">
+          U
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- OVERLAY móvil -->
+  <div class="fixed inset-0 bg-black/40 z-40 md:hidden" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <!-- WRAPPER -->
+  <div class="flex flex-1">
+    <!-- SIDEBAR -->
+    <aside
+      class="fixed inset-y-16 left-0 w-64 bg-slate-900 text-slate-100 transform transition-transform duration-200 -translate-x-full md:translate-x-0 md:static md:inset-y-0 md:h-auto z-50"
+      [class.translate-x-0]="sidebarOpen">
+      <nav class="h-full overflow-y-auto py-4 px-3">
+        <ul class="space-y-1">
+          <li *ngFor="let item of menu">
+            <div>
+              <a *ngIf="!item.items?.length" [routerLink]="item.routerLink" routerLinkActive="bg-sky-500 text-slate-900"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                <i *ngIf="item.icon" [ngClass]="item.icon" class="text-sm"></i>
+                <span>{{ item.label }}</span>
+              </a>
+
+              <!-- Item con submenú -->
+              <div *ngIf="item.items?.length" class="space-y-0.5">
+                <div
+                  class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 uppercase tracking-wide">
+                  <i *ngIf="item.icon" [ngClass]="item.icon" class="text-sm"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+
+                <ul class="ml-6 border-l border-slate-700 pl-3 space-y-0.5">
+                  <li *ngFor="let child of item.items">
+                    <a [routerLink]="child.routerLink" routerLinkActive="bg-sky-500/90 text-slate-900"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      class="flex items-center px-3 py-1.5 rounded-lg text-sm hover:bg-slate-800 transition-colors">
+                      <span>{{ child.label }}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="flex-1 w-full p-4 md:p-6">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
