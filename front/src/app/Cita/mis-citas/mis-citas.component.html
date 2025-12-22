@@ -1,0 +1,132 @@
+<div class="w-full px-4 py-4">
+    <div class="max-w-6xl mx-auto">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+            <!-- Header -->
+            <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100">
+                        {{ esPaciente ? 'Mis citas (Paciente)' : 'Mis citas (Empleado)' }}
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Revisa el listado de citas y filtra por estado.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-sm text-slate-400" *ngIf="!cargando">
+                        Total: <span class="text-slate-200 font-semibold">{{ filtradas.length }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2" *ngIf="cargando">
+                        <span
+                            class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+                        <span class="text-slate-300 text-sm">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800"></div>
+
+            <!-- Filtros -->
+            <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Buscar</label>
+                    <input type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100
+                   px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                        placeholder="Empleado / Paciente / Fecha..." [(ngModel)]="q" (input)="aplicarFiltros()" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Estado</label>
+                    <select class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100
+                   px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600" [(ngModel)]="filtroEstado"
+                        (change)="aplicarFiltros()">
+                        <option value="TODAS">TODAS</option>
+                        <option value="AGENDADA">AGENDADA</option>
+                        <option value="PAGADA">PAGADA</option>
+                        <option value="COMPLETADA">COMPLETADA</option>
+                        <option value="CANCELADA">CANCELADA</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end justify-end gap-3">
+                    <button type="button"
+                        class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                        (click)="q=''; filtroEstado='TODAS'; aplicarFiltros()">
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista -->
+            <div class="px-5 pb-5">
+                <!-- Sin datos -->
+                <div *ngIf="!cargando && filtradas.length === 0"
+                    class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <p class="text-slate-100 font-semibold">Sin citas</p>
+                    <p class="text-slate-400 text-sm mt-1">No hay resultados con los filtros actuales.</p>
+                </div>
+
+                <!-- Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" *ngIf="filtradas.length > 0">
+                    <div *ngFor="let c of filtradas; trackBy: trackById"
+                        class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-slate-100 font-bold">
+                                    {{ fechaLabel(c.fecha) }}
+                                </div>
+
+                                <!-- Si es paciente, muestra empleado; si es empleado, muestra paciente -->
+                                <div class="text-slate-400 text-sm mt-1">
+                                    <span class="font-semibold text-slate-200">
+                                        {{ esPaciente ? 'Empleado:' : 'Paciente:' }}
+                                    </span>
+                                    {{ esPaciente ? nombreEmpleado(c) : nombrePaciente(c) }}
+                                </div>
+
+                                <div class="text-slate-400 text-sm mt-1">
+                                    <span class="font-semibold text-slate-200">ID cita:</span> {{ c.id }}
+                                </div>
+                            </div>
+
+                            <span [class]="estadoBadgeClass(c.estado)">
+                                {{ estadoLabel(c.estado) }}
+                            </span>
+                        </div>
+
+                        <div class="border-t border-slate-800 my-4"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div class="text-slate-300">
+                                <span class="text-slate-400">Empleado:</span>
+                                <span class="font-semibold text-slate-100"> {{ nombreEmpleado(c) }}</span>
+                            </div>
+
+                            <div class="text-slate-300">
+                                <span class="text-slate-400">Paciente:</span>
+                                <span class="font-semibold text-slate-100"> {{ nombrePaciente(c) }}</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2 justify-end">
+                            <!-- PACIENTE: cancelar -->
+                            <button *ngIf="puedeCancelar(c)" type="button" class="px-4 py-2 rounded-xl font-semibold
+           bg-red-600 hover:bg-red-500 text-white" (click)="updateState(c.id, Estado.CANCELADA)">
+                                Cancelar
+                            </button>
+
+                            <!-- EMPLEADO: completar -->
+                            <button *ngIf="puedeCompletar(c)" type="button" class="px-4 py-2 rounded-xl font-semibold
+           bg-emerald-600 hover:bg-emerald-500 text-white" (click)="updateState(c.id, Estado.COMPLETADA)">
+                                Completar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

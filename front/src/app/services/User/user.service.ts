@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Empleado, Paciente, Usuario } from '../../interfaces/Usuario';
 import { environment } from '../../../environment/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,10 @@ export class UserService {
   desactivar(id:number){
     const data = {id}
     return this.http.put(this.url+'/actualizarEstado',data)
+  }
+
+  getAllPacientes():Observable<Paciente[]>{
+    return this.http.get<Paciente[]>(this.url+'/paciente')
   }
   
 }

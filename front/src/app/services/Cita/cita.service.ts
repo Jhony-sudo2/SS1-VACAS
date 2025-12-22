@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environment/environment';
 import { Observable } from 'rxjs';
-import { Disponibilidad } from '../../interfaces/Cita';
+import { Cita, Disponibilidad, Estado } from '../../interfaces/Cita';
 
 @Injectable({
   providedIn: 'root'
@@ -20,5 +20,19 @@ export class CitaService {
     console.log(fecha);
     return this.http.post(this.baseUrl+'/agendar',data)
   }
+
+  myCitas(id:number):Observable<Cita[]>{
+    return this.http.get<Cita[]>(this.baseUrl+'/empleado',{params:{id}})
+  }
+
+  myCitasPaciente(id:number):Observable<Cita[]>{
+    return this.http.get<Cita[]>(this.baseUrl+'/paciente',{params:{id}})
+  }
+
+  updateState(id:number,estado:Estado){
+    const data = {id,estado}
+    return this.http.post(this.baseUrl+'/update',data)
+  }
+  
 
 }

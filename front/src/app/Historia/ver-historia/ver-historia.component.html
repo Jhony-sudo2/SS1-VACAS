@@ -1,0 +1,226 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <!-- Header -->
+      <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Historias</h2>
+          <p class="text-sm text-slate-400 mt-1">
+            {{ esPaciente ? 'Visualiza tus historias clínicas.' : 'Visualiza las historias asignadas.' }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2" *ngIf="cargando">
+          <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+          <span class="text-slate-300 text-sm">Cargando...</span>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- Lista -->
+      <div class="p-5">
+        <div *ngIf="!cargando && historias.length === 0"
+             class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <p class="text-slate-100 font-semibold">Sin historias</p>
+          <p class="text-slate-400 text-sm mt-1">Aún no hay registros para mostrar.</p>
+        </div>
+
+        <div *ngIf="historias.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div *ngFor="let h of historias; trackBy: trackByHistoriaId"
+               class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+
+            <!-- Cabecera -->
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-slate-100 font-bold text-lg">
+                  Historia #{{ h.id }}
+                </div>
+                <div class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Apertura:</span>
+                  {{ formatFecha(h.fechaApertura) }}
+                </div>
+                <div class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">
+                    {{ esPaciente ? 'Empleado:' : 'Paciente:' }}
+                  </span>
+                  {{ esPaciente ? getNombreEmpleado(h) : getNombrePaciente(h) }}
+                </div>
+              </div>
+
+              <span [class]="badgeEstadoHistoriaClass(h.estado)">
+                {{ estadoHistoriaLabel(h.estado) }}
+              </span>
+            </div>
+
+            <div class="border-t border-slate-800 my-4"></div>
+
+            <!-- Básico -->
+            <div class="space-y-2 text-sm">
+              <div class="text-slate-300">
+                <span class="text-slate-400">Modalidad:</span>
+                <span class="text-slate-100 font-semibold"> {{ h.modalidad }} </span>
+              </div>
+              <div class="text-slate-300">
+                <span class="text-slate-400">Frecuencia:</span>
+                <span class="text-slate-100 font-semibold"> {{ h.frecuencia }} </span>
+              </div>
+              <div class="text-slate-300">
+                <span class="text-slate-400">Duración:</span>
+                <span class="text-slate-100 font-semibold"> {{ h.duracion }} min </span>
+              </div>
+              <div class="text-slate-300">
+                <span class="text-slate-400">Sesiones:</span>
+                <span class="text-slate-100 font-semibold"> {{ h.sesiones }} </span>
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="mt-4 flex justify-end">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold
+                       bg-slate-800 hover:bg-slate-700 text-slate-100"
+                (click)="toggleDetalles(h.id!)">
+                {{ expandedId === h.id ? 'Ocultar detalles' : 'Ver detalles' }}
+              </button>
+            </div>
+
+            <!-- Detalles -->
+            <div *ngIf="expandedId === h.id" class="mt-4">
+              <!-- loading -->
+              <div *ngIf="loadingDetailId === h.id"
+                   class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl p-3">
+                <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+                <span class="text-slate-300 text-sm">Cargando detalles...</span>
+              </div>
+
+              <!-- contenido -->
+              <ng-container *ngIf="loadingDetailId !== h.id">
+                <ng-container *ngIf="getDetail(h.id!) as d; else noDetail">
+
+                  <!-- Motivo / Procedencia -->
+                  <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+                    <div>
+                      <p class="text-slate-200 font-semibold">Motivo de consulta</p>
+                      <p class="text-slate-300 text-sm mt-1 whitespace-pre-wrap">
+                        {{ d.historia.motivoConsulta || '-' }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p class="text-slate-200 font-semibold">Procedencia</p>
+                      <p class="text-slate-300 text-sm mt-1 whitespace-pre-wrap">
+                        {{ d.historia.procedencia || '-' }}
+                      </p>
+                    </div>
+
+                    <div *ngIf="d.historia?.motivoAlta">
+                      <p class="text-slate-200 font-semibold">Motivo de alta</p>
+                      <p class="text-slate-300 text-sm mt-1 whitespace-pre-wrap">
+                        {{ d.historia.motivoAlta }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Historia Personal -->
+                  <div class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <p class="text-slate-100 font-bold mb-3">Historia personal</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div class="text-slate-300"><span class="text-slate-400">Desarrollo:</span> {{ d.historiaPersonal.desarrollo || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Académica:</span> {{ d.historiaPersonal.historiaAcademica || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Médica:</span> {{ d.historiaPersonal.historiaMedica || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Medicación:</span> {{ d.historiaPersonal.medicacionActual || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Tratamientos previos:</span> {{ d.historiaPersonal.tratamientosPrevios || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Hospitalizaciones:</span> {{ d.historiaPersonal.hospitalizaciones || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Alcohol:</span> {{ d.historiaPersonal.alcohol }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Tabaco:</span> {{ d.historiaPersonal.tabaco }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Drogas:</span> {{ d.historiaPersonal.drogas }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Antecedentes -->
+                  <div class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <p class="text-slate-100 font-bold mb-3">Antecedentes</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div class="text-slate-300"><span class="text-slate-400">Estructura:</span> {{ d.antecedente.estructura || '-' }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Trastornos:</span> {{ d.antecedente.trastornos || '-' }}</div>
+                      <div class="text-slate-300 md:col-span-2"><span class="text-slate-400">Eventos:</span> {{ d.antecedente.eventos || '-' }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Estado inicial -->
+                  <div class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <p class="text-slate-100 font-bold mb-3">Estado inicial</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div class="text-slate-300"><span class="text-slate-400">Ánimo:</span> {{ d.estadoInicial.animo }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Ansiedad:</span> {{ d.estadoInicial.ansiedad }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Func. social:</span> {{ d.estadoInicial.funcionamientosocial }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Sueño:</span> {{ d.estadoInicial.suenio }}</div>
+                      <div class="text-slate-300"><span class="text-slate-400">Apetito:</span> {{ d.estadoInicial.apetito }}</div>
+                      <div class="text-slate-300 md:col-span-2">
+                        <span class="text-slate-400">Observaciones:</span>
+                        <span class="whitespace-pre-wrap"> {{ d.estadoInicial.observaciones || '-' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Sesiones -->
+                  <div class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                      <p class="text-slate-100 font-bold">Sesiones</p>
+                      <span class="text-slate-400 text-sm">
+                        {{ d.sesiones.length || 0 }} registros
+                      </span>
+                    </div>
+
+                    <div *ngIf="!d.sesiones || d.sesiones.length === 0"
+                         class="text-slate-400 text-sm">
+                      No hay sesiones registradas.
+                    </div>
+
+                    <div *ngIf="d.sesiones && d.sesiones.length > 0" class="space-y-3">
+                      <div *ngFor="let s of d.sesiones; trackBy: trackBySesionId"
+                           class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                        <div class="flex items-start justify-between gap-2">
+                          <div class="text-slate-100 font-semibold">
+                            Sesión #{{ s.numero }}
+                          </div>
+                          <div class="text-slate-300 text-xs font-bold">
+                            {{ s.estado }}
+                          </div>
+                        </div>
+
+                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          <div class="text-slate-300"><span class="text-slate-400">Temas:</span> {{ s.temas || '-' }}</div>
+                          <div class="text-slate-300"><span class="text-slate-400">Respuestas:</span> {{ s.respuestas || '-' }}</div>
+                          <div class="text-slate-300 md:col-span-2"><span class="text-slate-400">Observaciones:</span> {{ s.observaciones || '-' }}</div>
+                          <div class="text-slate-300"><span class="text-slate-400">Pago:</span> {{ s.estadoPago ? 'Sí' : 'No' }}</div>
+                          <div class="text-slate-300"><span class="text-slate-400">Justificación:</span> {{ s.justificacion || '-' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </ng-container>
+
+                <ng-template #noDetail>
+                  <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-slate-300 text-sm">
+                    No hay detalles para mostrar.
+                  </div>
+                </ng-template>
+              </ng-container>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

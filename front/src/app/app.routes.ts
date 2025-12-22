@@ -10,6 +10,9 @@ import { CrearComponent } from './Medicamento/crear/crear.component';
 import { AgendarComponent } from './Cita/agendar/agendar.component';
 import { AreaCrearComponent } from './Areas/area-crear/area-crear.component';
 import { CrearPacienteComponent } from './Paciente/crear-paciente/crear-paciente.component';
+import { MisCitasComponent } from './Cita/mis-citas/mis-citas.component';
+import { CrearHistoriaComponent } from './Historia/crear-historia/crear-historia.component';
+import { VerHistoriaComponent } from './Historia/ver-historia/ver-historia.component';
 
 export const routes: Routes = [
      {path:'auth',component:LoginComponent,title:'login'},
@@ -22,6 +25,9 @@ export const routes: Routes = [
         {path:'medicamentos',component:CrearComponent,title:'medicamentos'},
         {path:'cita-agendar',component:AgendarComponent,title:'Agendar Cita'},
         {path:'area-crear',component:AreaCrearComponent,title:'Crear Area'},
-        {path:'paciente-crear',component:CrearPacienteComponent,title:'Crear Paciente'}
+        {path:'paciente-crear',component:CrearPacienteComponent,title:'Crear Paciente'},
+        {path:'mis-citas',component:MisCitasComponent,title:'Mis citas'},
+        {path:'historia-crear',component:CrearHistoriaComponent,title:'Crear Historia'},
+        {path:'ver-historia',component:VerHistoriaComponent,title:'Ver historias'}
     ]},
 ];

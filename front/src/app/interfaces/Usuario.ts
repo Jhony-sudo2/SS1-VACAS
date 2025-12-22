@@ -1,5 +1,7 @@
 export enum Rol{
-ADMIN,PACIENTE,TRABAJADOR
+ADMIN = "ADMIN",
+PACIENTE = "PACIENTE",
+TRABAJADOR = "TRABAJADOR"
 }
 export interface Usuario{
     id:number|undefined,

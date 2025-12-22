@@ -1,0 +1,345 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <!-- Header -->
+      <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Crear historia</h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Selecciona un paciente y completa la información inicial.
+          </p>
+        </div>
+
+        <button
+          class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="loading"
+          (click)="guardarHistoria()">
+          <span *ngIf="!loading">Guardar</span>
+          <span *ngIf="loading" class="flex items-center gap-2">
+            <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+            Guardando...
+          </span>
+        </button>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <div class="p-5 space-y-6">
+
+        <!-- HistoriaCreate -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Datos de historia</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- Paciente -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Paciente</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="pacienteId">
+                <option [ngValue]="null">Seleccione...</option>
+                <option *ngFor="let p of pacientes" [ngValue]="p.id">
+                  {{ p.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Fecha apertura -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha de apertura</label>
+              <input
+                type="date"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="fechaApertura">
+            </div>
+
+            <!-- Motivo -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Motivo de consulta</label>
+              <textarea
+                rows="3"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="motivoConsulta"
+                placeholder="Describe el motivo de consulta..."></textarea>
+            </div>
+
+            <!-- Procedencia -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Procedencia</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="procedencia"
+                placeholder="Familiar / Referencia...">
+            </div>
+
+            <!-- Modalidad -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Modalidad</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="modalidad">
+                <option *ngFor="let m of modalidades" [ngValue]="m.value">{{ m.label }}</option>
+              </select>
+            </div>
+
+            <!-- Enfoque -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Enfoque</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="enfoque">
+                <option *ngFor="let e of enfoques" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <!-- Frecuencia -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Frecuencia</label>
+              <select
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="frecuencia">
+                <option *ngFor="let f of frecuencias" [ngValue]="f.value">{{ f.label }}</option>
+              </select>
+            </div>
+
+            <!-- Sesiones -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Cantidad de sesiones</label>
+              <input
+                type="number"
+                min="1"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="sesiones">
+            </div>
+
+            <!-- Duración -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Duración por sesión (min)</label>
+              <input
+                type="number"
+                min="1"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="duracion">
+            </div>
+
+            <!-- Costo -->
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Costo por sesión</label>
+              <input
+                type="number"
+                min="0"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="costoSesion">
+            </div>
+          </div>
+        </div>
+
+        <!-- HistoriaPersonal -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Historia personal</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Desarrollo</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="personal.desarrollo"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Historia académica</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="personal.historiaAcademica"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Historia médica</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="personal.historiaMedica"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Medicación actual</label>
+              <input type="text"
+                     class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                            focus:ring-2 focus:ring-emerald-600"
+                     [(ngModel)]="personal.medicacionActual">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Tratamientos previos</label>
+              <input type="text"
+                     class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                            focus:ring-2 focus:ring-emerald-600"
+                     [(ngModel)]="personal.tratamientosPrevios">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Hospitalizaciones</label>
+              <input type="text"
+                     class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                            focus:ring-2 focus:ring-emerald-600"
+                     [(ngModel)]="personal.hospitalizaciones">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Alcohol</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="personal.alcohol">
+                <option *ngFor="let c of consumos" [ngValue]="c.value">{{ c.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Tabaco</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="personal.tabaco">
+                <option *ngFor="let c of consumos" [ngValue]="c.value">{{ c.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Drogas</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="personal.drogas">
+                <option *ngFor="let c of consumos" [ngValue]="c.value">{{ c.label }}</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Antecedentes -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Antecedentes</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Estructura</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="antecedente.estructura"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Trastornos</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="antecedente.trastornos"></textarea>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Eventos</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="antecedente.eventos"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado inicial -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Estado inicial</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Ánimo</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="estadoInicial.animo">
+                <option *ngFor="let e of emociones" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Ansiedad</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="estadoInicial.ansiedad">
+                <option *ngFor="let e of emociones" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Funcionamiento social</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="estadoInicial.funcionamientosocial">
+                <option *ngFor="let e of emociones" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Sueño</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="estadoInicial.suenio">
+                <option *ngFor="let e of emociones" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Apetito</label>
+              <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="estadoInicial.apetito">
+                <option *ngFor="let e of emociones" [ngValue]="e.value">{{ e.label }}</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Observaciones</label>
+              <textarea rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                              focus:ring-2 focus:ring-emerald-600"
+                        [(ngModel)]="estadoInicial.observaciones"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer actions -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+            (click)="resetForm()"
+            [disabled]="loading">
+            Limpiar
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            (click)="guardarHistoria()"
+            [disabled]="loading">
+            <span *ngIf="!loading">Guardar historia</span>
+            <span *ngIf="loading" class="flex items-center gap-2">
+              <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
