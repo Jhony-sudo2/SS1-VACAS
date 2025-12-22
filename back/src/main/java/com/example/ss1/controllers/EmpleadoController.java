@@ -23,6 +23,7 @@ import com.example.ss1.services.EmpleadoService;
 public class EmpleadoController {
     @Autowired
     private EmpleadoService empleadoService;
+   
 
     @PostMapping("/asignarHorario")
     public void asignarHorario(@RequestBody ArrayList<AsignacionHorarioDTO> asignacionHorarioDTO){
@@ -48,12 +49,11 @@ public class EmpleadoController {
     public void asignarArea(@RequestBody AsignacionAreaDTO data){
         empleadoService.asignarArea(data.getIdEmpleado(), data.getAreas());
     }
-
-    
-    
-
     @GetMapping()
     public List<Empleado> getAllEmpleados(){
         return empleadoService.findAllEmpleados();
     }
+
+    
+
 }

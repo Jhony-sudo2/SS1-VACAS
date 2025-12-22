@@ -1,5 +1,7 @@
 package com.example.ss1.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import com.example.ss1.DTOS.ConfirmarCorreoRequest;
 import com.example.ss1.DTOS.UpdateEstado;
 import com.example.ss1.DTOS.UserCreate;
 import com.example.ss1.models.Empleado;
+import com.example.ss1.models.Paciente;
 import com.example.ss1.services.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +47,11 @@ public class UserController {
     @GetMapping
     public Empleado getById(@RequestParam Long id){
         return service.findEmpleadoById(id);
+    }
+
+    @GetMapping("/paciente")
+    public List<Paciente> getAllPacientes(){
+        return service.getAllPacientes();
     }
 
 

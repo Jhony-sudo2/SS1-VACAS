@@ -1,6 +1,7 @@
 package com.example.ss1.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +123,10 @@ public class UsuarioService {
         Usuario usuario  = findById(id);
         usuario.setEstado(!usuario.isEstado());
         usuarioRepo.save(usuario);
+    }
+
+    public List<Paciente> getAllPacientes(){
+        return pacienteRepo.findAll();
     }
 
 }

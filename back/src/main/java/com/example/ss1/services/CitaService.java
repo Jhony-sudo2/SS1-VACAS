@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.ss1.DTOS.CitaDTO.CitaCreate;
 import com.example.ss1.DTOS.CitaDTO.DisponibilidadCita;
+import com.example.ss1.DTOS.CitaDTO.UpdateState;
 import com.example.ss1.enums.Estado;
 import com.example.ss1.errors.ApiException;
 import com.example.ss1.models.Empleado;
@@ -234,5 +235,27 @@ public class CitaService {
         cita.setEstado(Estado.AGENDADA);
         citaRepo.save(cita);
     }
+
+    public List<Cita> findCitaByEmpleadoId(Long empleadoId){
+        Empleado empleado = usuarioService.findEmpleadoById(empleadoId);
+        return citaRepo.findAllByEmpleadoId(empleado.getId());
+    }
+
+    public List<Cita> findCitaByPacienteId(Long pacienteId){
+        Paciente paciente= usuarioService.findPacienteByUsuarioId(pacienteId);
+        return citaRepo.findAllByPacienteId(paciente.getId());
+    }
+
+    public Cita findById(Long id){
+        return citaRepo.findById(id)
+        .orElseThrow(()-> new ApiException("Cita no encontrada", HttpStatus.NOT_FOUND));
+    }
+
+    public void updateState(UpdateState data){
+        Cita cita = findById(data.getId());
+        cita.setEstado(data.getEstado());
+        citaRepo.save(cita);
+    }
+
 
 }

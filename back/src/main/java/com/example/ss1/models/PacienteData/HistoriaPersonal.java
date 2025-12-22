@@ -30,7 +30,7 @@ public class HistoriaPersonal {
     @ManyToOne
     @JoinColumn(name = "historia_id")
     private Historia historia;
-
+    
     public Long getId() {
         return id;
     }
@@ -90,6 +90,12 @@ public class HistoriaPersonal {
     }
     public void setHospitalizaciones(String hospitalizaciones) {
         this.hospitalizaciones = hospitalizaciones;
+    }
+    public Historia getHistoria() {
+        return historia;
+    }
+    public void setHistoria(Historia historia) {
+        this.historia = historia;
     }
 
     

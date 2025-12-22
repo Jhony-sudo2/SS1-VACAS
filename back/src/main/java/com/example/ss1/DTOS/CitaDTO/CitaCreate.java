@@ -1,5 +1,5 @@
 package com.example.ss1.DTOS.CitaDTO;
-
+    
 import java.time.LocalDateTime;
 
 public class CitaCreate {

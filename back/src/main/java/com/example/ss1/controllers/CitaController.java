@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ss1.DTOS.CitaDTO.CitaCreate;
 import com.example.ss1.DTOS.CitaDTO.DisponibilidadCita;
+import com.example.ss1.DTOS.CitaDTO.UpdateState;
+import com.example.ss1.models.Cita.Cita;
 import com.example.ss1.services.CitaService;
 
 @RestController
@@ -30,4 +32,24 @@ public class CitaController {
     public void agendar(@RequestBody CitaCreate crear){
         citaService.agendar(crear);
     }
+
+    @PostMapping("/update")
+    public void updateState(@RequestBody UpdateState data){
+        citaService.updateState(data);
+    }
+
+    @GetMapping("/empleado")
+    public List<Cita> getMyCitas(@RequestParam Long id){
+        return citaService.findCitaByEmpleadoId(id);
+    }
+
+    
+    @GetMapping("/paciente")
+    public List<Cita> getMyCitasPaciente(@RequestParam Long id){
+        return citaService.findCitaByPacienteId(id);
+    }
+
+
+
+    
 }

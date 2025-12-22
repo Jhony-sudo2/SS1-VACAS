@@ -40,7 +40,7 @@ public class Historia {
     private Frecuencia frecuencia;
     private int sesiones;
     private int duracion;
-    private boolean costoSesion;
+    private double costoSesion;
 
 
     
@@ -76,12 +76,7 @@ public class Historia {
     public void setDuracion(int duracion) {
         this.duracion = duracion;
     }
-    public boolean isCostoSesion() {
-        return costoSesion;
-    }
-    public void setCostoSesion(boolean costoSesion) {
-        this.costoSesion = costoSesion;
-    }
+    
     public EstadoHistoria getEstado() {
         return estado;
     }
@@ -129,6 +124,12 @@ public class Historia {
     }
     public void setProcedencia(String procedencia) {
         this.procedencia = procedencia;
+    }
+    public double getCostoSesion() {
+        return costoSesion;
+    }
+    public void setCostoSesion(double costoSesion) {
+        this.costoSesion = costoSesion;
     }
 
     

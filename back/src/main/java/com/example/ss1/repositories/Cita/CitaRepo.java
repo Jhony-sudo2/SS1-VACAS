@@ -39,4 +39,7 @@ public interface CitaRepo extends JpaRepository<Cita, Long> {
                      @Param("empleadoId") Long empleadoId,
                      @Param("desde") LocalDateTime desde,
                      @Param("hasta") LocalDateTime hasta);
+
+      List<Cita> findAllByEmpleadoId(Long empleadoId);
+      List<Cita> findAllByPacienteId(Long pacienteId);
 }
