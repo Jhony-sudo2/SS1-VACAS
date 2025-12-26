@@ -13,6 +13,8 @@ import { CrearPacienteComponent } from './Paciente/crear-paciente/crear-paciente
 import { MisCitasComponent } from './Cita/mis-citas/mis-citas.component';
 import { CrearHistoriaComponent } from './Historia/crear-historia/crear-historia.component';
 import { VerHistoriaComponent } from './Historia/ver-historia/ver-historia.component';
+import { SesionComponent } from './Historia/sesion/sesion.component';
+import { RecetaTareasComponent } from './Paciente/receta-tareas/receta-tareas.component';
 
 export const routes: Routes = [
      {path:'auth',component:LoginComponent,title:'login'},
@@ -28,6 +30,8 @@ export const routes: Routes = [
         {path:'paciente-crear',component:CrearPacienteComponent,title:'Crear Paciente'},
         {path:'mis-citas',component:MisCitasComponent,title:'Mis citas'},
         {path:'historia-crear',component:CrearHistoriaComponent,title:'Crear Historia'},
-        {path:'ver-historia',component:VerHistoriaComponent,title:'Ver historias'}
+        {path:'ver-historia',component:VerHistoriaComponent,title:'Ver historias'},
+        {path:'sesion-gestion/:historia',component:SesionComponent,title:'Gestion Sesiones'},
+        {path:'receta-tareas',component:RecetaTareasComponent,title:'Recetas y tareas'}
     ]},
 ];

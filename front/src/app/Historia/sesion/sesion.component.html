@@ -1,0 +1,425 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Gestión de historia</h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Agenda sesiones, registra pruebas/impresión, crea tareas/recetas y da de alta la historia.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2" *ngIf="cargandoHistoria">
+          <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+          <span class="text-slate-300 text-sm">Cargando historia...</span>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- INFO HISTORIA -->
+      <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <p class="text-slate-400 text-sm">Historia</p>
+          <p class="text-slate-100 font-bold text-lg">#{{ historia.id }}</p>
+          <p class="text-slate-300 text-sm mt-2">
+            <span class="text-slate-400">Apertura:</span> {{ historia.fechaApertura }}
+          </p>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <p class="text-slate-400 text-sm">Paciente</p>
+          <p class="text-slate-100 font-bold">{{ historia.paciente.nombre || '—' }}</p>
+          <p class="text-slate-300 text-sm mt-2">
+            <span class="text-slate-400">Duración sesión:</span> {{ historia.duracion }} min
+          </p>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <p class="text-slate-400 text-sm">Estado</p>
+          <p class="text-slate-100 font-bold">{{ historia.estado }}</p>
+          <p class="text-slate-300 text-sm mt-2">
+            <span class="text-slate-400">Sesiones plan:</span> {{ historia.sesiones }}
+          </p>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="px-5 pb-5">
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="px-4 py-2 rounded-xl font-semibold border"
+            [class]="tab==='SESIONES' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-slate-950 border-slate-800 text-slate-100 hover:bg-slate-800'"
+            (click)="tab='SESIONES'">
+            Sesiones
+          </button>
+
+          <button
+            class="px-4 py-2 rounded-xl font-semibold border"
+            [class]="tab==='GESTION' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-slate-950 border-slate-800 text-slate-100 hover:bg-slate-800'"
+            (click)="tab='GESTION'"
+            [disabled]="!sesionSeleccionada">
+            Gestión sesión
+          </button>
+
+          <button
+            class="px-4 py-2 rounded-xl font-semibold border"
+            [class]="tab==='ALTA' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-slate-950 border-slate-800 text-slate-100 hover:bg-slate-800'"
+            (click)="tab='ALTA'">
+            Dar alta
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB SESIONES ================= -->
+    <div *ngIf="tab==='SESIONES'" class="mt-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-5">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-slate-100 font-bold text-lg">Agendar sesión</h3>
+          <div *ngIf="historia?.estado === EstadoHistoria.ALTA" class="text-red-300 text-sm font-semibold">
+            Historia en ALTA (no se pueden agendar más sesiones)
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha</label>
+            <input type="date"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="fechaAgenda"
+              [disabled]="historia.estado === EstadoHistoria.ALTA"
+              (change)="consultarDisponibilidad()">
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Horarios disponibles</label>
+
+            <div *ngIf="cargandoDisponibilidad" class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+              <span class="text-slate-300 text-sm">Consultando disponibilidad...</span>
+            </div>
+
+            <div *ngIf="!cargandoDisponibilidad && horariosDisponibles.length === 0"
+                 class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-400 text-sm">
+              Selecciona una fecha para ver horarios.
+            </div>
+
+            <div *ngIf="!cargandoDisponibilidad && horariosDisponibles.length > 0"
+                 class="flex flex-wrap gap-2">
+              <button
+                *ngFor="let h of horariosDisponibles"
+                type="button"
+                [class]="slotClass(h)"
+                (click)="horarioSeleccionado = h"
+                [disabled]="historia.estado === EstadoHistoria.ALTA">
+                {{ horaLabel(h) }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button
+            class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="guardando || !horarioSeleccionado || historia.estado === EstadoHistoria.ALTA"
+            (click)="agendarSesion()">
+            Agendar sesión
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800 my-5"></div>
+
+        <!-- LISTADO SESIONES -->
+        <div class="flex items-center justify-between">
+          <h3 class="text-slate-100 font-bold text-lg">Sesiones</h3>
+          <div class="flex items-center gap-2" *ngIf="cargandoSesiones">
+            <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+            <span class="text-slate-300 text-sm">Cargando...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!cargandoSesiones && sesiones.length === 0"
+             class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+          No hay sesiones registradas.
+        </div>
+
+        <div *ngIf="sesiones.length > 0" class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div *ngFor="let s of sesiones"
+               class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-slate-100 font-bold">Sesión #{{ s.numero }}</p>
+                <p class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Estado:</span> {{ s.estado }}
+                </p>
+                <p class="text-slate-400 text-sm mt-1" *ngIf="s.fecha">
+                  <span class="text-slate-200 font-semibold">Fecha:</span> {{ s.fecha }}
+                </p>
+              </div>
+
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                (click)="verDetalleSesion(s)">
+                Ver detalle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB GESTION ================= -->
+    <div *ngIf="tab==='GESTION'" class="mt-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-5">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-slate-100 font-bold text-lg">Gestión de sesión</h3>
+            <p class="text-slate-400 text-sm mt-1">
+              {{ sesionSeleccionada ? ('Sesión #' + sesionSeleccionada.numero) : 'Selecciona una sesión' }}
+            </p>
+          </div>
+
+          <button
+            class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+            (click)="tab='SESIONES'">
+            Volver
+          </button>
+        </div>
+
+        <div *ngIf="!sesionSeleccionada"
+             class="mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+          Selecciona una sesión desde la pestaña “Sesiones”.
+        </div>
+
+        <ng-container *ngIf="sesionSeleccionada">
+
+          <!-- PRUEBAS -->
+          <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <h4 class="text-slate-100 font-bold">Agregar prueba</h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha</label>
+                <input type="date"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formPrueba.fecha">
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Resultado</label>
+                <input type="number"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formPrueba.resultado">
+              </div>
+
+              <div class="md:col-span-3">
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Interpretación</label>
+                <textarea rows="3"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formPrueba.interpretacion"></textarea>
+              </div>
+            </div>
+
+            <div class="mt-3 flex justify-end">
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="guardando"
+                (click)="guardarPrueba()">
+                Guardar prueba
+              </button>
+            </div>
+
+            <div class="mt-4" *ngIf="detalle?.pruebasAplicadas?.length">
+              <p class="text-slate-200 font-semibold mb-2">Pruebas registradas</p>
+              <div class="space-y-2">
+                <div *ngFor="let p of detalle?.pruebasAplicadas"
+                     class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-sm text-slate-200">
+                  <div class="flex justify-between gap-2">
+                    <span class="text-slate-300">{{ p.fecha }}</span>
+                    <span class="font-bold">Resultado: {{ p.resultado }}</span>
+                  </div>
+                  <div class="text-slate-400 mt-1">{{ p.interpretacion }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IMPRESION -->
+          <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <h4 class="text-slate-100 font-bold">Impresión diagnóstica</h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Descripción</label>
+                <textarea rows="3"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formImpresion.descripcion"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Factores predisponentes</label>
+                <textarea rows="3"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formImpresion.factoresPredisponentes"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Factores precipitantes</label>
+                <textarea rows="3"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formImpresion.factoresPrecipitantes"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Factores mantenedores</label>
+                <textarea rows="3"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formImpresion.factoresMantenedores"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-200 mb-2">Nivel de funcionamiento</label>
+                <input type="text"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                  [(ngModel)]="formImpresion.nivelFuncionamiento">
+              </div>
+            </div>
+
+            <div class="mt-3 flex justify-end">
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="guardando"
+                (click)="guardarImpresion()">
+                Guardar impresión
+              </button>
+            </div>
+          </div>
+
+          <!-- TAREAS -->
+          <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <h4 class="text-slate-100 font-bold">Crear tarea al paciente</h4>
+
+            <div class="mt-3">
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Instrucciones</label>
+              <textarea rows="3"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="formTarea.instrucciones"></textarea>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between gap-3">
+              <label class="flex items-center gap-2 text-slate-200 text-sm font-semibold">
+                <input type="checkbox" class="h-4 w-4 accent-emerald-600" [(ngModel)]="formTarea.estado">
+                Marcar como completada
+              </label>
+
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="guardando"
+                (click)="guardarTarea()">
+                Guardar tarea
+              </button>
+            </div>
+          </div>
+
+          <!-- RECETAS -->
+          <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+            <div class="flex items-center justify-between gap-3">
+              <h4 class="text-slate-100 font-bold">Recetas</h4>
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                type="button"
+                (click)="addRecetaRow()">
+                + Agregar
+              </button>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <div *ngFor="let r of recetasDraft; let i = index"
+                   class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Medicamento</label>
+                    <select
+                      class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="r.medicamentoId">
+                      <option [ngValue]="null">Seleccione...</option>
+                      <option *ngFor="let m of medicamentos" [ngValue]="m.id">
+                        {{ m.nombre }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Indicaciones</label>
+                    <input type="text"
+                      class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="r.indicaciones"
+                      placeholder="Ej: 1 tableta cada 8 horas por 5 días">
+                  </div>
+
+                  <div class="md:col-span-3 flex justify-end">
+                    <button
+                      type="button"
+                      class="px-4 py-2 rounded-xl font-semibold bg-red-600 hover:bg-red-500 text-white"
+                      (click)="removeRecetaRow(i)">
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 flex justify-end">
+              <button
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="guardando"
+                (click)="guardarRecetas()">
+                Guardar recetas
+              </button>
+            </div>
+          </div>
+
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- ================= TAB ALTA ================= -->
+    <div *ngIf="tab==='ALTA'" class="mt-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-5">
+        <h3 class="text-slate-100 font-bold text-lg">Dar de alta</h3>
+        <p class="text-slate-400 text-sm mt-1">Finaliza la historia indicando el motivo de alta.</p>
+
+        <div class="mt-4">
+          <label class="block text-sm font-semibold text-slate-200 mb-2">Motivo de alta</label>
+          <textarea rows="4"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-600"
+            [(ngModel)]="motivoAlta"></textarea>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button
+            class="px-4 py-2 rounded-xl font-semibold bg-red-600 hover:bg-red-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="guardando || historia.estado === EstadoHistoria.ALTA"
+            (click)="darAlta()">
+            Dar de alta
+          </button>
+        </div>
+
+        <div *ngIf="historia?.estado === EstadoHistoria.ALTA" class="mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4">
+          <p class="text-slate-100 font-semibold">Historia en ALTA</p>
+          <p class="text-slate-400 text-sm mt-1">{{ historia.motivoAlta || '—' }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
