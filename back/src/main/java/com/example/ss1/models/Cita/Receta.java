@@ -27,6 +27,8 @@ public class Receta {
 
     @Column(nullable = false)
     private String indicaciones;
+    private int cantidad;
+    
 
     public Long getId() {
         return id;
@@ -58,6 +60,14 @@ public class Receta {
 
     public void setIndicaciones(String indicaciones) {
         this.indicaciones = indicaciones;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
     

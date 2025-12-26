@@ -22,24 +22,39 @@ public class Venta {
     @ManyToOne
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
-    private boolean total;
+    private double total;
     private LocalDate fecha;
     private boolean estadoEntrega;
-    private String direccionEntrega;
-
+    private String tarjeta;
+    private String codigo;
+    private LocalDate fechaVencimiento;
     
+    
+    public String getTarjeta() {
+        return tarjeta;
+    }
+    public void setTarjeta(String tarjeta) {
+        this.tarjeta = tarjeta;
+    }
+    public String getCodigo() {
+        return codigo;
+    }
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+    public LocalDate getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
+    }
     public boolean isEstadoEntrega() {
         return estadoEntrega;
     }
     public void setEstadoEntrega(boolean estadoEntrega) {
         this.estadoEntrega = estadoEntrega;
     }
-    public String getDireccionEntrega() {
-        return direccionEntrega;
-    }
-    public void setDireccionEntrega(String direccionEntrega) {
-        this.direccionEntrega = direccionEntrega;
-    }
+    
     public Long getId() {
         return id;
     }
@@ -52,17 +67,18 @@ public class Venta {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
-    public boolean isTotal() {
-        return total;
-    }
-    public void setTotal(boolean total) {
-        this.total = total;
-    }
+    
     public LocalDate getFecha() {
         return fecha;
     }
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+    public double getTotal() {
+        return total;
+    }
+    public void setTotal(double total) {
+        this.total = total;
     }
 
     

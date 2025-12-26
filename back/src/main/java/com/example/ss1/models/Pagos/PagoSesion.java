@@ -25,7 +25,29 @@ public class PagoSesion {
     @Column(nullable = false)
     private LocalDate fecha;
     @Column(nullable = false)
-    private boolean total;
+    private double total;
+    private String tarjeta;
+    private String codigo;
+    private LocalDate fechaVencimiento;
+    
+    public String getTarjeta() {
+        return tarjeta;
+    }
+    public void setTarjeta(String tarjeta) {
+        this.tarjeta = tarjeta;
+    }
+    public String getCodigo() {
+        return codigo;
+    }
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+    public LocalDate getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
+    }
     public Long getId() {
         return id;
     }
@@ -50,13 +72,13 @@ public class PagoSesion {
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
-    public boolean isTotal() {
+    public double getTotal() {
         return total;
     }
-    public void setTotal(boolean total) {
+    public void setTotal(double total) {
         this.total = total;
     }
-
+    
     
 
 }

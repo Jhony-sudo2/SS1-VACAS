@@ -21,4 +21,6 @@ public interface SesionRepo extends JpaRepository<Sesion, Long> {
                   @Param("empleadoId") Long empleadoId,
                   @Param("ini") LocalDateTime ini,
                   @Param("fin") LocalDateTime fin);
+
+      List<Sesion> findAllByHistoriaId(Long historia);
 }

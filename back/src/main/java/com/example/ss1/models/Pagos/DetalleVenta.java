@@ -18,7 +18,7 @@ public class DetalleVenta {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "factura_id")
-    private DetalleVenta factura;
+    private Venta factura;
     @ManyToOne
     @JoinColumn(name = "medicamento_id")
     private Medicamento medicamento;
@@ -29,12 +29,7 @@ public class DetalleVenta {
     public void setId(Long id) {
         this.id = id;
     }
-    public DetalleVenta getFactura() {
-        return factura;
-    }
-    public void setFactura(DetalleVenta factura) {
-        this.factura = factura;
-    }
+    
     public Medicamento getMedicamento() {
         return medicamento;
     }
@@ -46,6 +41,12 @@ public class DetalleVenta {
     }
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+    public Venta getFactura() {
+        return factura;
+    }
+    public void setFactura(Venta factura) {
+        this.factura = factura;
     }
 
     
