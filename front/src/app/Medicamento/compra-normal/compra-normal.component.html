@@ -1,0 +1,222 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <!-- Header -->
+      <div class="p-5">
+        <h2 class="text-xl font-bold text-slate-100">Compra de medicamentos</h2>
+        <p class="text-sm text-slate-400 mt-1">
+          {{ esPaciente ? 'Compra para tu cuenta (pago con tarjeta).' : 'Registra una venta (tarjeta o efectivo).' }}
+        </p>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- ====== LISTA MEDICAMENTOS ====== -->
+        <div class="lg:col-span-2 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <h3 class="text-slate-100 font-bold text-lg">Medicamentos</h3>
+
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                class="w-full md:w-72 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                placeholder="Buscar por nombre..."
+                [(ngModel)]="q">
+              <div class="flex items-center gap-2" *ngIf="cargando">
+                <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+                <span class="text-slate-300 text-sm">Cargando...</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!cargando && medicamentosFiltrados.length === 0"
+               class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+            No hay medicamentos para mostrar.
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3" *ngIf="medicamentosFiltrados.length > 0">
+            <div *ngFor="let m of medicamentosFiltrados; trackBy: trackByMedId"
+                 class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="h-16 w-16 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center">
+                  <img *ngIf="m.imagen" [src]="m.imagen" class="h-full w-full object-cover" />
+                  <span *ngIf="!m.imagen" class="text-slate-500 text-xs">Sin imagen</span>
+                </div>
+
+                <div class="flex-1">
+                  <p class="text-slate-100 font-bold">{{ m.nombre }}</p>
+                  <p class="text-slate-400 text-sm mt-1">Precio: <span class="text-slate-100 font-bold">Q {{ m.precio }}</span></p>
+                  <p class="text-slate-400 text-sm mt-1">Stock: <span class="text-slate-100 font-bold">{{ m.stock }}</span></p>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="px-3 py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                    (click)="remove(m)">
+                    -
+                  </button>
+
+                  <span class="min-w-[40px] text-center text-slate-100 font-bold">
+                    {{ cantidadDe(m) }}
+                  </span>
+
+                  <button
+                    type="button"
+                    class="px-3 py-2 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white"
+                    (click)="add(m)">
+                    +
+                  </button>
+                </div>
+
+                <p class="text-slate-400 text-sm">
+                  Subtotal:
+                  <span class="text-slate-100 font-bold">Q {{ (m.precio || 0) * (cantidadDe(m) || 0) }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== CARRITO / PAGO ====== -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold text-lg">Resumen</h3>
+
+          <div *ngIf="carrito.length === 0"
+               class="mt-3 bg-slate-900 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+            No has seleccionado productos.
+          </div>
+
+          <div *ngIf="carrito.length > 0" class="mt-3 space-y-2">
+            <div *ngFor="let it of carrito"
+                 class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-start justify-between gap-3">
+              <div>
+                <p class="text-slate-100 font-semibold">{{ it.med.nombre }}</p>
+                <p class="text-slate-400 text-sm mt-1">
+                  {{ it.cantidad }} x Q {{ it.med.precio }}
+                </p>
+              </div>
+              <p class="text-slate-100 font-bold">
+                Q {{ (it.med.precio || 0) * (it.cantidad || 0) }}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <p class="text-slate-400 text-sm">Total</p>
+              <p class="text-slate-100 font-bold text-xl">Q {{ total }}</p>
+            </div>
+
+            <button
+              type="button"
+              class="w-full mt-2 px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+              (click)="clear()">
+              Vaciar carrito
+            </button>
+          </div>
+
+          <!-- Para empleado: seleccionar paciente opcional -->
+          <div *ngIf="!esPaciente" class="mt-5">
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Paciente (opcional)</label>
+            <select
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                     focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="pacienteIdSeleccionado">
+              <option [ngValue]="null">Sin paciente</option>
+              <option *ngFor="let p of pacientes" [ngValue]="p.usuario.id">
+                {{ p.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Método de pago -->
+          <div class="mt-5">
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Método de pago</label>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="flex-1 px-4 py-2 rounded-xl font-semibold border"
+                [class]="(esPaciente || metodoPago==='TARJETA')
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'"
+                (click)="metodoPago='TARJETA'"
+                [disabled]="esPaciente">
+                Tarjeta
+              </button>
+
+              <button
+                type="button"
+                class="flex-1 px-4 py-2 rounded-xl font-semibold border"
+                [class]="metodoPago==='EFECTIVO'
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : 'bg-slate-900 border-slate-800 text-slate-100 hover:bg-slate-800'"
+                (click)="metodoPago='EFECTIVO'"
+                *ngIf="!esPaciente">
+                Efectivo
+              </button>
+            </div>
+
+            <!-- Datos de tarjeta (paciente SIEMPRE, empleado solo si tarjeta) -->
+            <div class="mt-4" *ngIf="esPaciente || metodoPago==='TARJETA'">
+              <div class="grid grid-cols-1 gap-3">
+                <div>
+                  <label class="block text-sm font-semibold text-slate-200 mb-2">Tarjeta</label>
+                  <input
+                    type="text"
+                    class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                           focus:ring-2 focus:ring-emerald-600"
+                    [(ngModel)]="tarjeta"
+                    placeholder="**** **** **** ****">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Código</label>
+                    <input
+                      type="password"
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="codigo"
+                      placeholder="CVV">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-2">Vencimiento</label>
+                    <input
+                      type="text"
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                             focus:ring-2 focus:ring-emerald-600"
+                      [(ngModel)]="fechaVencimiento"
+                      placeholder="MM/YY">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comprar -->
+          <button
+            type="button"
+            class="w-full mt-6 px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="comprando || carrito.length===0"
+            (click)="comprar()">
+            <span *ngIf="!comprando">Comprar</span>
+            <span *ngIf="comprando" class="flex items-center justify-center gap-2">
+              <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+              Procesando...
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

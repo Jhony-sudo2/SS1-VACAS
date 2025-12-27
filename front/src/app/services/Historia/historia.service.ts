@@ -85,5 +85,16 @@ export class HistoriaService {
     return this.http.post(this.baseUrl+'/tarea/completar',data)
   }
 
+  getSesionByPacienteId(id:number):Observable<Sesion[]>{
+    return this.http.get<Sesion[]>(this.baseUrl+'/sesion/pacienteId',{params:{id}})
+  }
+
+  getAllSesiones():Observable<Sesion[]>{
+    return this.http.get<Sesion[]>(this.baseUrl+'/sesion')
+  }
+
+  getSesionById(id:number):Observable<Sesion>{
+    return this.http.get<Sesion>(this.baseUrl+'/sesion/id',{params:{id}})
+  }
 
 }

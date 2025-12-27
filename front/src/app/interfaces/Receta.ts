@@ -5,7 +5,9 @@ export interface Receta{
     id:number|undefined,
     medicamento:Medicamento,
     paciente:Paciente,
-    indicaciones:string
+    indicaciones:string,
+    cantidad:number
+    sesion:number
 }
 
 export interface Tarea{

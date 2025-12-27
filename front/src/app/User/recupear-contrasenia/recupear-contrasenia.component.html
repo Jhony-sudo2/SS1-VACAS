@@ -1,0 +1,151 @@
+<div class="w-full px-4 py-6">
+  <div class="max-w-xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-6">
+        <h2 class="text-xl font-bold text-slate-100">Recuperar contraseña</h2>
+        <p class="text-sm text-slate-400 mt-1">
+          Sigue los pasos para restablecer tu contraseña.
+        </p>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- Steps indicator -->
+      <div class="px-6 pt-5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex-1 text-center">
+            <div class="text-xs font-bold"
+                 [ngClass]="paso === 1 ? 'text-emerald-300' : 'text-slate-500'">1. Email</div>
+            <div class="h-1 mt-2 rounded-full"
+                 [ngClass]="paso >= 1 ? 'bg-emerald-600' : 'bg-slate-800'"></div>
+          </div>
+          <div class="flex-1 text-center">
+            <div class="text-xs font-bold"
+                 [ngClass]="paso === 2 ? 'text-emerald-300' : 'text-slate-500'">2. Código</div>
+            <div class="h-1 mt-2 rounded-full"
+                 [ngClass]="paso >= 2 ? 'bg-emerald-600' : 'bg-slate-800'"></div>
+          </div>
+          <div class="flex-1 text-center">
+            <div class="text-xs font-bold"
+                 [ngClass]="paso === 3 ? 'text-emerald-300' : 'text-slate-500'">3. Nueva</div>
+            <div class="h-1 mt-2 rounded-full"
+                 [ngClass]="paso >= 3 ? 'bg-emerald-600' : 'bg-slate-800'"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <!-- PASO 1 -->
+        <div *ngIf="paso === 1" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Correo electrónico</label>
+            <input
+              type="email"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                     focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="email"
+              placeholder="ejemplo@correo.com">
+          </div>
+
+          <button
+            type="button"
+            class="w-full px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            (click)="enviarCodigo()">
+            <span>Enviar</span>
+          </button>
+        </div>
+
+        <!-- PASO 2 -->
+        <div *ngIf="paso === 2" class="space-y-4">
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-300 text-sm">
+            Se envió un código a: <span class="text-slate-100 font-semibold">{{ email }}</span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Código</label>
+            <input
+              type="text"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                     focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="codigo"
+              placeholder="Ingresa el código">
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-100"
+              (click)="volver()">
+              Volver
+            </button>
+
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="confirmarCodigo()">
+              <span>Confirmar</span>
+              <span>Confirmar</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="w-full px-4 py-3 rounded-xl font-semibold bg-slate-900 border border-slate-700
+                   text-slate-100 hover:bg-slate-800"
+            (click)="reenviarCodigo()">
+            Reenviar código
+          </button>
+        </div>
+
+        <!-- PASO 3 -->
+        <div *ngIf="paso === 3" class="space-y-4">
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-300 text-sm">
+            Código verificado para: <span class="text-slate-100 font-semibold">{{ email }}</span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Nueva contraseña</label>
+            <input
+              type="password"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                     focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="nueva"
+              placeholder="Nueva contraseña">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Confirmar nueva contraseña</label>
+            <input
+              type="password"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                     focus:ring-2 focus:ring-emerald-600"
+              [(ngModel)]="confirmNueva"
+              placeholder="Confirmar contraseña">
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-100"
+              (click)="volver()">
+              Volver
+            </button>
+
+            <button
+              type="button"
+              class="flex-1 px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="cambiarContrasenia()">
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

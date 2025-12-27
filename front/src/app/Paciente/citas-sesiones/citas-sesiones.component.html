@@ -1,0 +1,302 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <div class="p-5">
+        <h2 class="text-xl font-bold text-slate-100">Mis pagos</h2>
+        <p class="text-sm text-slate-400 mt-1">Citas y sesiones. Pago únicamente con tarjeta.</p>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- Tabs -->
+      <div class="p-5">
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl font-semibold border"
+            [class]="tab==='CITAS'
+              ? 'bg-emerald-600 border-emerald-600 text-white'
+              : 'bg-slate-950 border-slate-800 text-slate-100 hover:bg-slate-800'"
+            (click)="tab='CITAS'">
+            Citas
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl font-semibold border"
+            [class]="tab==='SESIONES'
+              ? 'bg-emerald-600 border-emerald-600 text-white'
+              : 'bg-slate-950 border-slate-800 text-slate-100 hover:bg-slate-800'"
+            (click)="tab='SESIONES'">
+            Sesiones
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= CITAS ================= -->
+      <div *ngIf="tab==='CITAS'" class="px-5 pb-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-slate-100 font-bold text-lg">Mis citas</h3>
+          <div class="flex items-center gap-2" *ngIf="cargandoCitas">
+            <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+            <span class="text-slate-300 text-sm">Cargando...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!cargandoCitas && citas.length===0"
+             class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+          No hay citas registradas.
+        </div>
+
+        <div *ngIf="citas.length>0" class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div *ngFor="let c of citas; trackBy: trackById"
+               class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-slate-100 font-bold">Cita #{{ c.id }}</p>
+                <p class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Empleado:</span>
+                  {{ c.empleado.nombre || '—' }}
+                </p>
+                <p class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Fecha:</span>
+                  {{ formatFecha(c.fecha) }}
+                </p>
+              </div>
+
+              <span
+                class="px-3 py-1 rounded-full text-xs font-bold border"
+                [ngClass]="citaPagada(c)
+                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30'">
+                {{ citaPagada(c) ? 'PAGADA' : 'PENDIENTE' }}
+              </span>
+            </div>
+
+            <div class="border-t border-slate-800 my-4"></div>
+
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="citaPagada(c)"
+                (click)="abrirPagoCita(c)">
+                Pagar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SESIONES ================= -->
+      <div *ngIf="tab==='SESIONES'" class="px-5 pb-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-slate-100 font-bold text-lg">Mis sesiones</h3>
+          <div class="flex items-center gap-2" *ngIf="cargandoSesiones">
+            <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+            <span class="text-slate-300 text-sm">Cargando...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!cargandoSesiones && sesiones.length===0"
+             class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+          No hay sesiones registradas.
+        </div>
+
+        <div *ngIf="sesiones.length>0" class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div *ngFor="let s of sesiones; trackBy: trackById"
+               class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-slate-100 font-bold">Sesión #{{ s.id }} • #{{ s.numero }}</p>
+                <p class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Empleado:</span>
+                  {{ s.historia.empleado.nombre || '—' }}
+                </p>
+                <p class="text-slate-400 text-sm mt-1">
+                  <span class="text-slate-200 font-semibold">Fecha:</span>
+                  {{ formatFecha(s.fecha) }}
+                </p>
+              </div>
+
+              <span
+                class="px-3 py-1 rounded-full text-xs font-bold border"
+                [ngClass]="sesionPagada(s)
+                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30'">
+                {{ sesionPagada(s) ? 'PAGADA' : 'PENDIENTE' }}
+              </span>
+            </div>
+
+            <div class="border-t border-slate-800 my-4"></div>
+
+            <div class="flex justify-end gap-2">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                (click)="verDetalleSesion(s)">
+                Detalle
+              </button>
+
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="sesionPagada(s)"
+                (click)="abrirPagoSesion(s)">
+                Pagar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= MODAL PAGO ================= -->
+    <div *ngIf="showPago" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+      <div class="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl">
+        <div class="p-5 flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-slate-100 font-bold text-lg">Pago con tarjeta</h3>
+            <p class="text-slate-400 text-sm mt-1">
+              {{ pagoTipo === 'CITA' ? ('Cita #' + (citaSel?.id || '')) : ('Sesión #' + (sesionSel?.id || '')) }}
+            </p>
+          </div>
+
+          <button type="button"
+                  class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold"
+                  (click)="cerrarPago()">
+            Cerrar
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800"></div>
+
+        <div class="p-5 space-y-3">
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Tarjeta</label>
+            <input type="text"
+                   class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                          focus:ring-2 focus:ring-emerald-600"
+                   [(ngModel)]="tarjeta"
+                   placeholder="**** **** **** ****">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Código</label>
+              <input type="password"
+                     class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                            focus:ring-2 focus:ring-emerald-600"
+                     [(ngModel)]="codigo"
+                     placeholder="CVV">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Vencimiento</label>
+              <input type="text"
+                     class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                            focus:ring-2 focus:ring-emerald-600"
+                     [(ngModel)]="fechaVencimiento"
+                     placeholder="MM/YY">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-200 mb-2">Total</label>
+            <input type="number"
+                   class="w-full rounded-xl border border-slate-700 bg-slate-950 text-slate-100 px-3 py-2 outline-none
+                          focus:ring-2 focus:ring-emerald-600"
+                   [(ngModel)]="total"
+                   placeholder="Total">
+          </div>
+
+          <button type="button"
+                  class="w-full mt-2 px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+                  [disabled]="pagando"
+                  (click)="pagar()">
+            <span *ngIf="!pagando">Pagar</span>
+            <span *ngIf="pagando" class="flex items-center justify-center gap-2">
+              <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+              Procesando...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL DETALLE SESION ================= -->
+    <div *ngIf="showDetalle" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+      <div class="w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl">
+        <div class="p-5 flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-slate-100 font-bold text-lg">Detalle de sesión</h3>
+            <p class="text-slate-400 text-sm mt-1">Pruebas e impresión diagnóstica.</p>
+          </div>
+
+          <button type="button"
+                  class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold"
+                  (click)="cerrarDetalle()">
+            Cerrar
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800"></div>
+
+        <div class="p-5">
+          <div *ngIf="cargandoDetalle"
+               class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+            <span class="text-slate-300 text-sm">Cargando detalle...</span>
+          </div>
+
+          <div *ngIf="!cargandoDetalle && !detalleSesion"
+               class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+            No hay detalle para mostrar.
+          </div>
+
+          <div *ngIf="detalleSesion" class="space-y-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <p class="text-slate-100 font-semibold">Sesión #{{ detalleSesion.sesion.id }}</p>
+              <p class="text-slate-400 text-sm mt-1">
+                Fecha: <span class="text-slate-100 font-semibold">{{ formatFecha(detalleSesion.sesion.fecha || '') }}</span>
+              </p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <p class="text-slate-100 font-semibold">Impresión diagnóstica</p>
+              <p class="text-slate-400 text-sm mt-2 whitespace-pre-line">
+                {{ detalleSesion.impresionDiagnostica.descripcion || '—' }}
+              </p>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <p class="text-slate-100 font-semibold">Pruebas aplicadas</p>
+
+              <div *ngIf="(detalleSesion.pruebasAplicadas?.length || 0) === 0" class="text-slate-400 text-sm mt-2">
+                No hay pruebas registradas.
+              </div>
+
+              <div *ngIf="(detalleSesion.pruebasAplicadas?.length || 0) > 0" class="mt-2 space-y-2">
+                <div *ngFor="let p of detalleSesion.pruebasAplicadas"
+                     class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                  <p class="text-slate-100 font-semibold">Resultado: {{ p.resultado }}</p>
+                  <p class="text-slate-400 text-sm mt-1 whitespace-pre-line">{{ p.interpretacion }}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

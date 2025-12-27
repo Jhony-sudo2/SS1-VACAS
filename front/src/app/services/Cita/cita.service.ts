@@ -33,6 +33,14 @@ export class CitaService {
     const data = {id,estado}
     return this.http.post(this.baseUrl+'/update',data)
   }
+
+  getAllCitas():Observable<Cita[]>{
+    return this.http.get<Cita[]>(this.baseUrl)
+  }
+
+  getCitaById(id:number):Observable<Cita>{
+    return this.http.get<Cita>(this.baseUrl+'/id',{params:{id}})
+  }
   
 
 }

@@ -15,9 +15,19 @@ import { CrearHistoriaComponent } from './Historia/crear-historia/crear-historia
 import { VerHistoriaComponent } from './Historia/ver-historia/ver-historia.component';
 import { SesionComponent } from './Historia/sesion/sesion.component';
 import { RecetaTareasComponent } from './Paciente/receta-tareas/receta-tareas.component';
+import { ComprasComponent } from './Paciente/compras/compras.component';
+import { EntregarVentaComponent } from './Empleado/entregar-venta/entregar-venta.component';
+import { CompraNormalComponent } from './Medicamento/compra-normal/compra-normal.component';
+import { PerfilComponent } from './User/perfil/perfil.component';
+import { RecupearContraseniaComponent } from './User/recupear-contrasenia/recupear-contrasenia.component';
+import { CitasSesionesComponent } from './Paciente/citas-sesiones/citas-sesiones.component';
+import { CitaSesionPagoComponent } from './Empleado/cita-sesion-pago/cita-sesion-pago.component';
+import { NominaComponent } from './Empleado/nomina/nomina.component';
+import { ReportesComponent } from './Empleado/reportes/reportes.component';
 
 export const routes: Routes = [
      {path:'auth',component:LoginComponent,title:'login'},
+     {path:'recuperar-contrasenia',component:RecupearContraseniaComponent,title:'Recuperar contrasenia'},
     {path:'',component:NavComponent,title:'Main',children:[
         {path:'paciente-create',component:CreatePacienteComponent,title:'Crear paciente'},
         {path:'usuario-create',component:CreateUserComponent,title:'Crear usuario'},
@@ -32,6 +42,14 @@ export const routes: Routes = [
         {path:'historia-crear',component:CrearHistoriaComponent,title:'Crear Historia'},
         {path:'ver-historia',component:VerHistoriaComponent,title:'Ver historias'},
         {path:'sesion-gestion/:historia',component:SesionComponent,title:'Gestion Sesiones'},
-        {path:'receta-tareas',component:RecetaTareasComponent,title:'Recetas y tareas'}
+        {path:'receta-tareas',component:RecetaTareasComponent,title:'Recetas y tareas'},
+        {path:'mis-gastos',component:ComprasComponent,title:'Mis compras'},
+        {path:'entregar-venta',component:EntregarVentaComponent,title:'Entregar ventas'},
+        {path:'comprar',component:CompraNormalComponent,title:'Compra'},
+        {path:'mi-perfil',component:PerfilComponent,title:'My perfil'},
+        {path:'sesiones-citas',component:CitasSesionesComponent,title:'Mis citas y sesiones'},
+        {path:'pago-sesiones',component:CitaSesionPagoComponent,title:'Pago citas y sesiones'},
+        {path:'nomina',component:NominaComponent,title:'Nominas'},
+        {path:'reportes',component:ReportesComponent,title:'Reporte'}
     ]},
 ];

@@ -1,0 +1,274 @@
+<div class="w-full px-4 py-4">
+    <div class="max-w-5xl mx-auto">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+            <!-- Header -->
+            <div class="p-5 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100">Mi perfil</h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        {{ rol === Rol.PACIENTE ? 'Paciente' : 'Empleado' }} • {{ email }}
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2" *ngIf="cargando">
+                    <span
+                        class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+                    <span class="text-slate-300 text-sm">Cargando...</span>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800"></div>
+
+            <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <!-- ================= PERFIL ================= -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <h3 class="text-slate-100 font-bold text-lg">Datos personales</h3>
+                    <p class="text-slate-400 text-sm mt-1">Actualiza tu información básica.</p>
+
+                    <!-- PACIENTE -->
+                    <div *ngIf="rol === Rol.PACIENTE" class="mt-4 grid grid-cols-1 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Nombre</label>
+                            <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.nombre" type="text"
+                                placeholder="Nombre completo">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha nacimiento</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" type="date"
+                                    [ngModel]="toInputDate(paciente.fechaNacimiento)"
+                                    (ngModelChange)="paciente.fechaNacimiento = fromInputDate($event)">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Teléfono</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.telefono" type="text"
+                                    placeholder="Teléfono">
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-slate-100 font-semibold">Autenticación en 2 pasos (A2F)</p>
+                                    <p class="text-slate-400 text-sm">Activa o desactiva el segundo factor.</p>
+                                </div>
+
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only" [checked]="paciente.usuario.a2f"
+                                        (change)="toggleA2fPacienteEvent($event)">
+                                    <span class="w-12 h-6 rounded-full transition-colors"
+                                        [ngClass]="paciente.usuario.a2f ? 'bg-emerald-600' : 'bg-slate-700'">
+                                    </span>
+                                    <span class="-ml-10 w-5 h-5 bg-white rounded-full transition-transform"
+                                        [ngClass]="paciente.usuario.a2f ? 'translate-x-6' : 'translate-x-0'">
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Género</label>
+                                <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.genero">
+                                    <option [ngValue]="true">Masculino</option>
+                                    <option [ngValue]="false">Femenino</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Estado civil</label>
+                                <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.estadoCivil">
+                                    <option [ngValue]="true">Casado/a</option>
+                                    <option [ngValue]="false">Soltero/a</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Dirección</label>
+                            <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.direccion" type="text"
+                                placeholder="Dirección">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Persona
+                                    emergencia</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.personEmergencia" type="text"
+                                    placeholder="Nombre">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Tel. emergencia</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.telefonoEmergencia" type="text"
+                                    placeholder="Teléfono">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Nivel educativo</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.nivelEducativo" type="text"
+                                    placeholder="Nivel educativo">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Procedencia</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="paciente.procedencia" type="text"
+                                    placeholder="Procedencia">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMPLEADO -->
+                    <div *ngIf="rol !== Rol.PACIENTE" class="mt-4 grid grid-cols-1 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Nombre</label>
+                            <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.nombre" type="text"
+                                placeholder="Nombre completo">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Fecha nacimiento</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" type="date"
+                                    [ngModel]="toInputDate(empleado.fechaNacimiento)"
+                                    (ngModelChange)="empleado.fechaNacimiento = fromInputDate($event)">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Teléfono</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.telefono" type="text"
+                                    placeholder="Teléfono">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Género</label>
+                                <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.genero">
+                                    <option [ngValue]="true">Masculino</option>
+                                    <option [ngValue]="false">Femenino</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Estado civil</label>
+                                <select class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.estadoCivil">
+                                    <option [ngValue]="true">Casado/a</option>
+                                    <option [ngValue]="false">Soltero/a</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-slate-100 font-semibold">Autenticación en 2 pasos (A2F)</p>
+                                    <p class="text-slate-400 text-sm">Activa o desactiva el segundo factor.</p>
+                                </div>
+
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only" [checked]="empleado.usuario.a2f"
+                                        (change)="toggleA2fEmpleadoEvent($event)">
+                                    <span class="w-12 h-6 rounded-full transition-colors"
+                                        [ngClass]="empleado.usuario.a2f ? 'bg-emerald-600' : 'bg-slate-700'">
+                                    </span>
+                                    <span class="-ml-10 w-5 h-5 bg-white rounded-full transition-transform"
+                                        [ngClass]="empleado.usuario.a2f ? 'translate-x-6' : 'translate-x-0'">
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Colegiado</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.colegiado" type="text"
+                                    placeholder="Colegiado">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-200 mb-2">Salario</label>
+                                <input class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                         focus:ring-2 focus:ring-emerald-600" [(ngModel)]="empleado.salario" type="number"
+                                    placeholder="Salario">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="w-full mt-5 px-4 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white
+                   disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="guardando || cargando"
+                        (click)="actualizarDatos()">
+                        <span *ngIf="!guardando">Guardar cambios</span>
+                        <span *ngIf="guardando" class="flex items-center justify-center gap-2">
+                            <span
+                                class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                            Guardando...
+                        </span>
+                    </button>
+                </div>
+
+                <!-- ================= PASSWORD ================= -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <h3 class="text-slate-100 font-bold text-lg">Cambiar contraseña</h3>
+                    <p class="text-slate-400 text-sm mt-1">Ingresa tu contraseña actual y la nueva.</p>
+
+                    <div class="mt-4 space-y-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Contraseña actual</label>
+                            <input type="password" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="actual" placeholder="Actual">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Nueva contraseña</label>
+                            <input type="password" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="nueva" placeholder="Nueva">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-200 mb-2">Confirmar nueva</label>
+                            <input type="password" class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600" [(ngModel)]="confirmNueva" placeholder="Confirmar">
+                        </div>
+
+                        <button type="button" class="w-full mt-2 px-4 py-3 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white
+                     disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="cambiandoPass || cargando"
+                            (click)="cambiarContrasenia()">
+                            <span *ngIf="!cambiandoPass">Actualizar contraseña</span>
+                            <span *ngIf="cambiandoPass" class="flex items-center justify-center gap-2">
+                                <span
+                                    class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                                Actualizando...
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 bg-slate-900 border border-slate-800 rounded-xl p-4 text-slate-400 text-sm">
+                        <p class="font-semibold text-slate-200 mb-1">Consejo</p>
+                        Usa una contraseña con al menos 6 caracteres (mejor 8+), combinando letras y números.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

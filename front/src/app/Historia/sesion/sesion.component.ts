@@ -73,8 +73,8 @@ export class SesionComponent  {
   };
 
   // Forms: Recetas (lista)
-  recetasDraft: Array<{ medicamentoId: number | null; indicaciones: string }> = [
-    { medicamentoId: null, indicaciones: '' }
+  recetasDraft: Array<{ medicamentoId: number | null; indicaciones: string,cantidad:number }> = [
+    { medicamentoId: null, indicaciones: '' ,cantidad:0}
   ];
 
   // Exponer enums al HTML
@@ -361,7 +361,7 @@ export class SesionComponent  {
 
   // ========= GUARDAR RECETAS =========
   addRecetaRow(): void {
-    this.recetasDraft = [...this.recetasDraft, { medicamentoId: null, indicaciones: '' }];
+    this.recetasDraft = [...this.recetasDraft, { medicamentoId: null, indicaciones: '',cantidad:0 }];
   }
 
   removeRecetaRow(i: number): void {
@@ -378,7 +378,8 @@ export class SesionComponent  {
     const filasValidas = this.recetasDraft
       .map((r) => ({
         medicamentoId: r.medicamentoId,
-        indicaciones: (r.indicaciones || '').trim()
+        indicaciones: (r.indicaciones || '').trim(),
+        cantidad: r.cantidad
       }))
       .filter((r) => !!r.medicamentoId && !!r.indicaciones);
 
@@ -392,8 +393,10 @@ export class SesionComponent  {
       return {
         id: undefined,
         medicamento: med as any,
-        Paciente: this.historia.paciente as any, // ⚠️ tu interface usa "Paciente" con mayúscula
-        indicaciones: r.indicaciones
+        paciente: this.historia.paciente as any, 
+        indicaciones: r.indicaciones,
+        sesion:this.sesionSeleccionada?.id,
+        cantidad: r.cantidad
       } as any;
     });
 
@@ -401,7 +404,7 @@ export class SesionComponent  {
     this.servicio.guardarReceta(recetas).subscribe({
       next: () => {
         Swal.fire({ title: 'OK', text: 'Receta(s) guardada(s).', icon: 'success' });
-        this.recetasDraft = [{ medicamentoId: null, indicaciones: '' }];
+        this.recetasDraft = [{ medicamentoId: null, indicaciones: '',cantidad:0 }];
       },
       error: (err) => Swal.fire({ title: 'Error', text: err?.error || 'No se pudo guardar receta', icon: 'error' }),
       complete: () => (this.guardando = false)
