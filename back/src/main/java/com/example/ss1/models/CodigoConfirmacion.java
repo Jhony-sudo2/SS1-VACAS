@@ -22,6 +22,9 @@ public class CodigoConfirmacion {
     private String codigo;
     @Column(nullable = false)
     private LocalDateTime vencimiento;
+    @Column(nullable = false)
+    private int tipo;
+    
     public Long getId() {
         return id;
     }
@@ -45,6 +48,12 @@ public class CodigoConfirmacion {
     }
     public void setVencimiento(LocalDateTime vencimiento) {
         this.vencimiento = vencimiento;
+    }
+    public int getTipo() {
+        return tipo;
+    }
+    public void setTipo(int tipo) {
+        this.tipo = tipo;
     }
 
     

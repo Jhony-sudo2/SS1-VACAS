@@ -70,6 +70,11 @@ public class HistoriaController {
         historiaService.saveSesion(sesion);
     }
 
+    @GetMapping("/sesion")
+    public List<Sesion> getAllSesiones(){
+        return historiaService.findAllSesion();
+    }
+
     @GetMapping("/sesionHistoria")
     public List<Sesion> getSesionByHistoria(@RequestParam Long id){
         return historiaService.findSesionByHistoria(id);
@@ -88,6 +93,16 @@ public class HistoriaController {
     @GetMapping("/sesion/details")
     public SesionDetail getDetailSesion(@RequestParam Long id){
         return historiaService.getDetalleSesion(id);
+    }
+
+    @GetMapping("/sesion/pacienteId")
+    public List<Sesion> getSesionByPacienteId(@RequestParam Long id){
+        return historiaService.findSesionByPacienteId(id);
+    }
+
+    @GetMapping("/sesion/id")
+    public Sesion findSesionById(@RequestParam Long id){
+        return historiaService.findSesionById(id);
     }
 
     @PostMapping("/darAlta")

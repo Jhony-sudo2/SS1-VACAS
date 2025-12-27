@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.ss1.DTOS.ConfirmarCorreoRequest;
 import com.example.ss1.DTOS.UpdateEstado;
 import com.example.ss1.DTOS.UserCreate;
+import com.example.ss1.DTOS.UpdateUser.UpdatePass;
+import com.example.ss1.DTOS.UpdateUser.UpdatePassword;
 import com.example.ss1.models.Empleado;
 import com.example.ss1.models.Paciente;
 import com.example.ss1.services.UsuarioService;
@@ -49,12 +51,53 @@ public class UserController {
         return service.findEmpleadoById(id);
     }
 
+    @GetMapping("/empleado")
+    public List<Empleado> getAllEmpleados(){
+        return service.getAllEmpleados();
+    }
+
     @GetMapping("/paciente")
     public List<Paciente> getAllPacientes(){
         return service.getAllPacientes();
     }
 
+    @PutMapping("/empleado")
+    public void updateEmpleado(@RequestBody Empleado empleado){
 
+    }
 
+    @PutMapping("/paciente")
+    public void updatePaciente(@RequestBody Paciente empleado){
 
+    }
+
+    @PutMapping("/password")
+    public void updatePassword(@RequestBody UpdatePassword data){
+        service.UpdatePassword(data);
+    }
+
+    @PostMapping("/recuperarcontrasenia")
+    public void recupearContrasenia(@RequestBody ConfirmarCorreoRequest data){
+        service.recuperarContrasenia(data.email());
+    }
+
+    @PostMapping("/confirmarcodigo")
+    public ResponseEntity<?> confirmarCodigo(@RequestBody ConfirmarCorreoRequest data){
+        return service.confirmarCodigo(data);
+    }
+
+    @PutMapping("/password/cambiar")
+    public void cambiarContrasenia(@RequestBody UpdatePass data){
+        service.cambioPassword(data.getEmail(),data.getNueva());
+    }
+
+    @GetMapping("/paciente/id")
+    public Paciente findPacienteByUsuarioId(@RequestParam Long id){
+        return service.findPacienteByUsuarioId(id);
+    }
+
+    @GetMapping("/empleado/id")
+    public Empleado findEmpleadoByUsuarioId(@RequestParam Long id){
+        return service.findEmpleadoByUsuarioId(id);
+    }
 }

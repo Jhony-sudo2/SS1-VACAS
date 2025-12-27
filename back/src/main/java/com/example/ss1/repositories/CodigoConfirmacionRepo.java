@@ -8,4 +8,5 @@ import com.example.ss1.models.CodigoConfirmacion;
 
 public interface CodigoConfirmacionRepo extends JpaRepository<CodigoConfirmacion,Long> {
     Optional<CodigoConfirmacion> findByEmail(String email);
+    Optional<CodigoConfirmacion> findByEmailAndTipo(String email,int tipo);
 }

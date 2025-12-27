@@ -6,12 +6,16 @@ import com.example.ss1.models.Cita.Cita;
 import com.example.ss1.models.Cita.Sesion;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "pagosesion")
 public class PagoSesion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +32,7 @@ public class PagoSesion {
     private double total;
     private String tarjeta;
     private String codigo;
-    private LocalDate fechaVencimiento;
+    private String fechaVencimiento;
     
     public String getTarjeta() {
         return tarjeta;
@@ -42,12 +46,7 @@ public class PagoSesion {
     public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
-    public LocalDate getFechaVencimiento() {
-        return fechaVencimiento;
-    }
-    public void setFechaVencimiento(LocalDate fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
-    }
+    
     public Long getId() {
         return id;
     }
@@ -77,6 +76,12 @@ public class PagoSesion {
     }
     public void setTotal(double total) {
         this.total = total;
+    }
+    public String getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+    public void setFechaVencimiento(String fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
     }
     
     

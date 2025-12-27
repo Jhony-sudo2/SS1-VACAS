@@ -8,4 +8,5 @@ import com.example.ss1.models.Cita.Receta;
 
 public interface RecetaRepo extends JpaRepository<Receta,Long>{
     List<Receta> findAllByPacienteId(Long pacienteId);
+    List<Receta> findAllBySesion(Long sesion);
 }

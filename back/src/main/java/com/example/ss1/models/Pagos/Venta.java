@@ -1,6 +1,7 @@
 package com.example.ss1.models.Pagos;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import com.example.ss1.models.Paciente;
 
@@ -27,7 +28,7 @@ public class Venta {
     private boolean estadoEntrega;
     private String tarjeta;
     private String codigo;
-    private LocalDate fechaVencimiento;
+    private YearMonth fechaVencimiento;
     
     
     public String getTarjeta() {
@@ -42,12 +43,7 @@ public class Venta {
     public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
-    public LocalDate getFechaVencimiento() {
-        return fechaVencimiento;
-    }
-    public void setFechaVencimiento(LocalDate fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
-    }
+    
     public boolean isEstadoEntrega() {
         return estadoEntrega;
     }
@@ -79,6 +75,12 @@ public class Venta {
     }
     public void setTotal(double total) {
         this.total = total;
+    }
+    public YearMonth getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+    public void setFechaVencimiento(YearMonth fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
     }
 
     

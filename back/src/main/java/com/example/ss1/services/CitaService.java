@@ -257,5 +257,10 @@ public class CitaService {
         citaRepo.save(cita);
     }
 
+    public List<Cita> findAll(){
+        return citaRepo.findAll();
+    }
+
+
 
 }

@@ -334,7 +334,8 @@ public class HistoriaService {
     }
 
     public List<Tarea> getTareas(Long id) {
-        return tareaRepo.findAllByPacienteId(id);
+        Paciente usuario = usuarioService.findPacienteByUsuarioId(id);
+        return tareaRepo.findAllByPacienteId(usuario.getId());
     }
 
     public void saveReceta(List<Receta> receta) {
@@ -342,7 +343,8 @@ public class HistoriaService {
     }
 
     public List<Receta> findRecetaByPaciente(Long pacienteId) {
-        return recetaRepo.findAllByPacienteId(pacienteId);
+        Paciente paciente = usuarioService.findPacienteByUsuarioId(pacienteId);
+        return recetaRepo.findAllByPacienteId(paciente.getId());
     }
 
     public void darAlta(DarAlta data) {
@@ -360,6 +362,21 @@ public class HistoriaService {
         Tarea tarea = tareaRepo.findById(tareaId)
         .orElseThrow(()-> new ApiException("Tarea no encontrada", HttpStatus.NOT_FOUND));
         tarea.setEstado(true);
+        tareaRepo.save(tarea);
+    }
+
+    public List<Sesion> findSesionByPacienteId(Long id){
+        Long idPaciente = usuarioService.findPacienteByUsuarioId(id).getId();
+        return sesionRepo.findAllByHistoria_PacienteId(idPaciente);
+    }
+
+    public Sesion findSesionById(Long id){
+        return sesionRepo.findById(id)
+        .orElseThrow(()-> new ApiException("Sesion no econtrada", HttpStatus.NOT_FOUND));
+    }
+
+    public List<Sesion> findAllSesion(){
+        return sesionRepo.findAll();
     }
 
 }

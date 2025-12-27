@@ -27,7 +27,10 @@ public class Receta {
 
     @Column(nullable = false)
     private String indicaciones;
+    @Column(nullable = false)
     private int cantidad;
+    @Column(nullable = false)
+    private Long sesion;
     
 
     public Long getId() {
@@ -68,6 +71,14 @@ public class Receta {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public Long getSesion() {
+        return sesion;
+    }
+
+    public void setSesion(Long sesion) {
+        this.sesion = sesion;
     }
 
     

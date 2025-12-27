@@ -45,7 +45,8 @@ public class AuthService {
                 tmp.setCodigo(codigo);
                 tmp.setEmail(usuario.getEmail());
                 tmp.setVencimiento(LocalDateTime.now().plusMinutes(15));
-                Optional<CodigoConfirmacion> existe = codigoConfirmacionRepo.findByEmail(usuario.getEmail());
+                tmp.setTipo(1);
+                Optional<CodigoConfirmacion> existe = codigoConfirmacionRepo.findByEmailAndTipo(usuario.getEmail(),1);
                 if (existe.isPresent()) 
                     codigoConfirmacionRepo.delete(existe.get());
                 codigoConfirmacionRepo.save(tmp);
@@ -60,7 +61,7 @@ public class AuthService {
     public ResponseEntity<?> confirmarCorreo(String email, String codigo) {
         Usuario usuario = usuarioRepo.findByEmail(email)
                 .orElseThrow(() -> new ApiException("El usuario no existe", HttpStatus.NOT_FOUND));
-        CodigoConfirmacion codigoConfirmacion = codigoConfirmacionRepo.findByEmail(email)
+        CodigoConfirmacion codigoConfirmacion = codigoConfirmacionRepo.findByEmailAndTipo(email,1)
                 .orElseThrow(() -> new ApiException("El usuario no existe", HttpStatus.NOT_FOUND));
         if (codigo.equals(codigoConfirmacion.getCodigo())) {
             codigoConfirmacionRepo.delete(codigoConfirmacion);

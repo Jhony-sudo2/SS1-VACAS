@@ -1,14 +1,16 @@
 package com.example.ss1.DTOS.CompraDTO;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+
 
 public class CompraDTO {
-    private Detalle[] detalle;
+    private List<Detalle> detalle;
     private Long pacienteId;
     private boolean tipo;
     private String tarjeta;
     private String codigo;
-    private LocalDate fechaVencimiento;
+    private YearMonth fechaVencimiento;
 
     
 
@@ -36,21 +38,9 @@ public class CompraDTO {
         this.codigo = codigo;
     }
 
-    public LocalDate getFechaVencimiento() {
-        return fechaVencimiento;
-    }
+    
 
-    public void setFechaVencimiento(LocalDate fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
-    }
-
-    public Detalle[] getDetalle() {
-        return detalle;
-    }
-
-    public void setDetalle(Detalle[] detalle) {
-        this.detalle = detalle;
-    }
+    
 
     public Long getPacienteId() {
         return pacienteId;
@@ -60,7 +50,7 @@ public class CompraDTO {
         this.pacienteId = pacienteId;
     }
 
-    public class Detalle{
+    public static class Detalle{
         private Long medicamentoId;
         private int cantidad;
         public Long getMedicamentoId() {
@@ -76,6 +66,22 @@ public class CompraDTO {
             this.cantidad = cantidad;
         }
         
+    }
+
+    public List<Detalle> getDetalle() {
+        return detalle;
+    }
+
+    public void setDetalle(List<Detalle> detalle) {
+        this.detalle = detalle;
+    }
+
+    public YearMonth getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+
+    public void setFechaVencimiento(YearMonth fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
     }
 
 }

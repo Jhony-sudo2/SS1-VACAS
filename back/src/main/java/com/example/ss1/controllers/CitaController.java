@@ -49,6 +49,16 @@ public class CitaController {
         return citaService.findCitaByPacienteId(id);
     }
 
+    @GetMapping()
+    public List<Cita> getAllCitas(){
+        return citaService.findAll();
+    }
+
+    @GetMapping("/id")
+    public Cita findById(@RequestParam Long id){
+        return citaService.findById(id);
+    }
+
 
 
     
