@@ -24,6 +24,7 @@ import { CitasSesionesComponent } from './Paciente/citas-sesiones/citas-sesiones
 import { CitaSesionPagoComponent } from './Empleado/cita-sesion-pago/cita-sesion-pago.component';
 import { NominaComponent } from './Empleado/nomina/nomina.component';
 import { ReportesComponent } from './Empleado/reportes/reportes.component';
+import { EmpresaComponent } from './Empleado/empresa/empresa.component';
 
 export const routes: Routes = [
      {path:'auth',component:LoginComponent,title:'login'},
@@ -50,6 +51,7 @@ export const routes: Routes = [
         {path:'sesiones-citas',component:CitasSesionesComponent,title:'Mis citas y sesiones'},
         {path:'pago-sesiones',component:CitaSesionPagoComponent,title:'Pago citas y sesiones'},
         {path:'nomina',component:NominaComponent,title:'Nominas'},
-        {path:'reportes',component:ReportesComponent,title:'Reporte'}
+        {path:'reportes',component:ReportesComponent,title:'Reporte'},
+        {path:'empresa',component:EmpresaComponent,title:'Empresa'}
     ]},
 ];

@@ -1,1 +1,214 @@
-<p>reportes works!</p>
+<div class="min-h-screen bg-slate-100 p-4 md:p-6">
+  <div class="mx-auto max-w-6xl space-y-6">
+
+    <!-- Header / filtros -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="p-4 md:p-6">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-slate-800">Reportes</h1>
+            <p class="text-sm text-slate-500">Financieros, inventario, clínicos y RRHH</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Desde</label>
+              <input
+                type="date"
+                [(ngModel)]="desde"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Hasta</label>
+              <input
+                type="date"
+                [(ngModel)]="hasta"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Top medicamentos</label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                [(ngModel)]="top"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              (click)="cargarTodo()"
+              class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-50"
+              [disabled]="loading"
+            >
+              {{ loading ? 'Cargando...' : 'Generar' }}
+            </button>
+            <button
+              type="button"
+              (click)="generarPdf()"
+              class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-50"
+            >
+              {{ 'Generar PDF' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCIERO -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6">
+        <div class="text-xs font-semibold text-slate-500">Ingresos ventas</div>
+        <div class="text-2xl font-bold text-slate-800 mt-1">{{ formatQ(financiero?.ingresosVentas) }}</div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6">
+        <div class="text-xs font-semibold text-slate-500">Ingresos sesiones</div>
+        <div class="text-2xl font-bold text-slate-800 mt-1">{{ formatQ(financiero?.ingresosSesiones) }}</div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6">
+        <div class="text-xs font-semibold text-slate-500">Ingresos totales</div>
+        <div class="text-2xl font-bold text-slate-800 mt-1">{{ formatQ(financiero?.ingresosTotales) }}</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6">
+        <div class="text-xs font-semibold text-slate-500">Costo nómina estimado (RRHH)</div>
+        <div class="text-2xl font-bold text-slate-800 mt-1">{{ formatQ(costoNominaRRHH) }}</div>
+        <p class="text-xs text-slate-500 mt-2">* Estimado en base a sueldos (sin bonos/retenciones).</p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 md:p-6">
+        <div class="text-xs font-semibold text-slate-500">Ganancia estimada</div>
+        <div
+          class="text-2xl font-bold mt-1"
+          [ngClass]="(financiero?.gananciaEstimada ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-700'"
+        >
+          {{ formatQ(financiero?.gananciaEstimada) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="p-4 md:p-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-800">Inventario</h2>
+          <p class="text-sm text-slate-500">Medicamentos próximos o en mínimo</p>
+        </div>
+        <span class="text-sm text-slate-500">Total: {{ minimos.length }}</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Medicamento</th>
+              <th class="px-4 py-3 text-left font-semibold">Stock</th>
+              <th class="px-4 py-3 text-left font-semibold">Mínimo</th>
+              <th class="px-4 py-3 text-left font-semibold">Precio</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let m of minimos" class="hover:bg-slate-50">
+              <td class="px-4 py-3 font-semibold text-slate-900">{{ m.nombre }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                  [ngClass]="esBajo(m) ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'"
+                >
+                  {{ m.stock }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ m.minimo }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ formatQ(m.precio) }}</td>
+            </tr>
+
+            <tr *ngIf="minimos.length === 0">
+              <td colspan="4" class="px-4 py-8 text-center text-slate-500">
+                No hay medicamentos en mínimo.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOP MEDICAMENTOS -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="p-4 md:p-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-800">Top medicamentos vendidos</h2>
+          <p class="text-sm text-slate-500">Período seleccionado</p>
+        </div>
+        <span class="text-sm text-slate-500">Top: {{ top }}</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Medicamento</th>
+              <th class="px-4 py-3 text-left font-semibold">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let t of topMedicamentos" class="hover:bg-slate-50">
+              <td class="px-4 py-3 font-semibold text-slate-900">{{ t.nombre }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ t.cantidad }}</td>
+            </tr>
+
+            <tr *ngIf="topMedicamentos.length === 0">
+              <td colspan="2" class="px-4 py-8 text-center text-slate-500">
+                No hay datos en el período.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLÍNICO -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="p-4 md:p-6">
+        <h2 class="text-lg font-semibold text-slate-800">Estadísticas clínicas</h2>
+        <p class="text-sm text-slate-500">Atención (pagos de sesión) por empleado</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Empleado</th>
+              <th class="px-4 py-3 text-left font-semibold">Sesiones pagadas</th>
+              <th class="px-4 py-3 text-left font-semibold">Total recaudado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let a of atencion" class="hover:bg-slate-50">
+              <td class="px-4 py-3 font-semibold text-slate-900">{{ a.empleadoNombre }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ a.sesionesPagadas }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ formatQ(a.totalRecaudado) }}</td>
+            </tr>
+
+            <tr *ngIf="atencion.length === 0">
+              <td colspan="3" class="px-4 py-8 text-center text-slate-500">
+                No hay datos en el período.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,133 @@
+<div class="w-full px-4 py-4">
+  <div class="max-w-4xl mx-auto">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
+      <!-- Header -->
+      <div class="p-5 flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Empresa</h2>
+          <p class="text-sm text-slate-400 mt-1">Configuración general del sistema.</p>
+        </div>
+
+        <div class="flex items-center gap-2" *ngIf="cargando">
+          <span class="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></span>
+          <span class="text-slate-300 text-sm">Cargando...</span>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-800"></div>
+
+      <!-- Content -->
+      <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- Form -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-slate-100 font-bold">Datos</h3>
+
+          <div class="mt-4 space-y-4">
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Nombre</label>
+              <input
+                type="text"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="empresa.nombre"
+                placeholder="Nombre de la empresa">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Precio cita</label>
+              <input
+                type="number"
+                min="0"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="empresa.precioCita"
+                placeholder="0">
+              <p class="text-xs text-slate-400 mt-1">Si no cobrás por cita, dejalo en 0.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-2">Tiempo cita (minutos)</label>
+              <input
+                type="number"
+                min="1"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900 text-slate-100 px-3 py-2 outline-none
+                       focus:ring-2 focus:ring-emerald-600"
+                [(ngModel)]="empresa.tiempoCita"
+                placeholder="45">
+              <p class="text-xs text-slate-400 mt-1">Ejemplo: 45 = 45 minutos.</p>
+            </div>
+
+            <div class="flex gap-2 justify-end pt-2">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                [disabled]="guardando"
+                (click)="cargarEmpresa()">
+                Recargar
+              </button>
+
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="guardando"
+                (click)="updateEmpresa()">
+                <span *ngIf="!guardando">Actualizar</span>
+                <span *ngIf="guardando" class="flex items-center gap-2">
+                  <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                  Guardando...
+                </span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Imagen -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-slate-100 font-bold">Imagen</h3>
+
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl font-semibold bg-red-600 hover:bg-red-500 text-white"
+              *ngIf="empresa.imagen"
+              (click)="quitarImagen()">
+              Quitar
+            </button>
+          </div>
+
+          <div class="mt-4">
+            <input
+              type="file"
+              accept="image/*"
+              class="block w-full text-sm text-slate-300
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-xl file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-slate-800 file:text-slate-100
+                     hover:file:bg-slate-700"
+              (change)="onFileSelected($event)">
+            <p class="text-xs text-slate-400 mt-2">(máx 2MB recomendado).</p>
+            <p *ngIf="imagenNombre" class="text-xs text-slate-400 mt-1">Archivo: {{ imagenNombre }}</p>
+          </div>
+
+          <div class="mt-4">
+            <div *ngIf="!imagenPreview"
+                 class="h-56 rounded-2xl border border-slate-800 bg-slate-900 flex items-center justify-center">
+              <span class="text-slate-400 text-sm">Sin imagen</span>
+            </div>
+
+            <img *ngIf="imagenPreview"
+                 [src]="imagenPreview"
+                 class="w-full h-56 object-cover rounded-2xl border border-slate-800"
+                 alt="Imagen empresa">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -82,6 +82,11 @@
                                     (click)="abrirDetalle(v)">
                                     Ver detalle
                                 </button>
+                                <button type="button"
+                                    class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                                    (click)="facturaVenta(v)">
+                                    Comprobante
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -202,6 +207,13 @@
                             <div class="text-right">
                                 <p class="text-slate-400 text-sm">Total</p>
                                 <p class="text-slate-100 font-bold text-lg">Q {{ p.total }}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button"
+                                    class="px-4 py-2 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100"
+                                    (click)="facturaSesion(p)">
+                                    Comprobante
+                                </button>
                             </div>
                         </div>
 

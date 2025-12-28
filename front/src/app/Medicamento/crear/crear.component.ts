@@ -15,7 +15,6 @@ import { Medicamento } from '../../interfaces/Medicamento'; // ajusta tu ruta
 export class CrearComponent implements OnInit {
   medicamentos: Medicamento[] = [];
 
-  // formulario
   form: Medicamento = {
     id: undefined,
     nombre: '',
@@ -28,10 +27,11 @@ export class CrearComponent implements OnInit {
 
   loading = false;
 
-  // modal stock
+  imagenPreview = '';
+  imagenNombre = '';
   stockModalOpen = false;
   selected: Medicamento | null = null;
-  stockCantidad = 0; // positivo suma, negativo resta
+  stockCantidad = 0; 
 
   constructor(private servicio: MedicamentoService) {}
 
@@ -80,7 +80,6 @@ export class CrearComponent implements OnInit {
     };
   }
 
-  // -------- Stock modal ----------
   abrirStock(m: Medicamento): void {
     this.selected = m;
     this.stockCantidad = 0;
@@ -112,8 +111,51 @@ export class CrearComponent implements OnInit {
     });
   }
 
-  // helpers UI
   esBajoStock(m: Medicamento): boolean {
     return (m.stock ?? 0) <= (m.minimo ?? 0);
   }
+
+  onFileSelected(ev: Event): void {
+    const input = ev.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    const maxMB = 2;
+    if (file.size > maxMB * 1024 * 1024) {
+      Swal.fire({ title: 'Validación', text: `La imagen debe ser <= ${maxMB}MB.`, icon: 'warning' });
+      if (input) input.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      Swal.fire({ title: 'Validación', text: 'Solo se permiten imágenes.', icon: 'warning' });
+      if (input) input.value = '';
+      return;
+    }
+
+    this.imagenNombre = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || '');
+
+      this.imagenPreview = dataUrl;
+
+      this.form.imagen = dataUrl;
+    };
+    reader.onerror = () => Swal.fire({ title: 'Error', text: 'No se pudo leer la imagen.', icon: 'error' });
+
+    reader.readAsDataURL(file);
+  }
+
+  quitarImagen(): void {
+    this.imagenPreview = '';
+    this.imagenNombre = '';
+    this.form.imagen = '';
+  }
+
+  private extraerBase64(dataUrl: string): string {
+    const idx = dataUrl.indexOf('base64,');
+    return idx >= 0 ? dataUrl.substring(idx + 'base64,'.length) : dataUrl;
+  }
+
 }

@@ -4,6 +4,7 @@ import { CompraService } from '../../services/Pago/compra.service';
 import { PagoSesion, ResponseReceta, Venta } from '../../interfaces/Pago';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
+import { PdGenerator } from '../../utils/PdfMake';
 
 @Component({
   selector: 'app-compras',
@@ -24,6 +25,8 @@ export class ComprasComponent {
   cargandoDetalle = false;
 
   tab: 'VENTAS' | 'PAGOS' = 'VENTAS';
+
+  pdfConstructor = new PdGenerator()
 
   constructor(private authService: AuthService, private servicio: CompraService) { }
 
@@ -100,7 +103,7 @@ export class ComprasComponent {
       complete: () => (this.cargandoDetalle = false)
     });
   }
-   badgeClass(entregada: boolean): string {
+  badgeClass(entregada: boolean): string {
     const base = 'px-3 py-1 rounded-full text-xs font-bold border';
     return entregada
       ? `${base} bg-emerald-500/15 text-emerald-300 border-emerald-500/30`
@@ -113,6 +116,19 @@ export class ComprasComponent {
     this.detalles = [];
     this.cargandoDetalle = false;
   }
+
+  facturaSesion(pagoSesion: PagoSesion) {
+    this.pdfConstructor.pdfFacturaSesion(pagoSesion, 'open')
+  }
+
+  facturaVenta(venta: Venta) {
+    this.servicio.getDetallesVenta(venta.id).subscribe({
+      next: (response) => {
+        this.pdfConstructor.pdfFacturaCompra(venta,response, 'open')
+      }
+    })
+  }
+
   trackById = (_: number, x: any) => x?.id;
 }
 
