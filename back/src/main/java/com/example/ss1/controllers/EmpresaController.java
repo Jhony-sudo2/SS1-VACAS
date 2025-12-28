@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.ss1.DTOS.PrincipalDTO;
 import com.example.ss1.models.Empresa;
 import com.example.ss1.services.EmpresaService;
 
@@ -25,5 +26,9 @@ public class EmpresaController {
     public void updateEmpresa(@RequestBody Empresa empresa){
         empresaService.updateEmpresa(empresa);
     }
-    
+
+    @GetMapping("/dashboard")
+    public PrincipalDTO getPrincipal(){
+        return empresaService.getPrincipalEmpleado();
+    }
 }

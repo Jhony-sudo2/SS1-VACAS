@@ -13,9 +13,11 @@ import com.example.ss1.DTOS.CompraDTO.CompraDTO;
 import com.example.ss1.DTOS.CompraDTO.ResponseReceta;
 import com.example.ss1.DTOS.CompraDTO.CompraDTO.Detalle;
 import com.example.ss1.enums.Estado;
+import com.example.ss1.enums.Rol;
 import com.example.ss1.errors.ApiException;
 import com.example.ss1.models.Empresa;
 import com.example.ss1.models.Paciente;
+import com.example.ss1.models.Usuario;
 import com.example.ss1.models.Cita.Cita;
 import com.example.ss1.models.Cita.Receta;
 import com.example.ss1.models.Cita.Sesion;
@@ -56,6 +58,9 @@ public class PagoService {
     private SesionRepo sesionRepo;
     @Autowired
     private CitaRepo citaRepo;
+    @Autowired
+    private MailService mailService;
+    
 
     public ArrayList<ResponseReceta> findMedicamentosxReceta(Long sesionId){
         List<Receta> recetas = recetaRepo.findAllBySesion(sesionId);
@@ -120,6 +125,8 @@ public class PagoService {
             if (medicamento.getStock() < tmpDetalle.getCantidad()) 
                 throw new ApiException("STOCK NO SUFICIENTE", HttpStatus.BAD_REQUEST);
             medicamento.setStock(medicamento.getStock() - tmpDetalle.getCantidad());
+            if(medicamento.getStock() < medicamento.getMinimo())
+                notificarBajoStock(medicamento);
             total += medicamento.getPrecio() * tmpDetalle.getCantidad();
             medicamentoRepo.save(medicamento);
             DetalleVenta detalleVenta = new DetalleVenta();
@@ -144,6 +151,13 @@ public class PagoService {
             detalleVentaRepo.save(detalleVenta);
         }
 
+    }
+
+    public void notificarBajoStock(Medicamento medicamento){
+        List<Usuario> admins = usuarioService.findByRol(Rol.ADMIN);
+        for (Usuario usuario : admins) {
+            mailService.enviarNotificacion  ("STOCK BAJO", usuario, "Medicamento: " + medicamento.getNombre() + " bajo en stock");
+        }
     }
 
     public void entregarVenta(Long idVenta){

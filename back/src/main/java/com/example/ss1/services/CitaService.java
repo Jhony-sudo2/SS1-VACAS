@@ -225,10 +225,14 @@ public class CitaService {
     }
 
     public void agendar(CitaCreate data){
+        
         Cita cita = new Cita();
         System.out.println("FECHA: " + data.getFecha());
         Empleado empleado = usuarioService.findEmpleadoById(data.getEmpleadoId());
         Paciente paciente = usuarioService.findPacienteByUsuarioId(data.getPacienteId());
+        List<Cita> pendientesPago = citaRepo.findAllByEmpleadoIdAndEstado(paciente.getId(), Estado.AGENDADA);
+        if (!pendientesPago.isEmpty()) 
+            throw new ApiException("Tienes citas pendientes de pagas", HttpStatus.NOT_ACCEPTABLE);
         cita.setEmpleado(empleado);
         cita.setPaciente(paciente);
         cita.setFecha(data.getFecha());

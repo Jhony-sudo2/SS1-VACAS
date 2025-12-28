@@ -1,6 +1,7 @@
 package com.example.ss1.DTOS.CitaDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.example.ss1.models.Cita.EstadoInicial;
 import com.example.ss1.models.Cita.Historia;
@@ -12,7 +13,7 @@ public class HistoriaDetail {
     private Historia historia;
     private HistoriaPersonal historiaPersonal;
     private EstadoInicial estadoInicial;
-    private ArrayList<Sesion> sesiones;
+    private List<Sesion> sesiones;
     private Antecedente antecedente;
     
 
@@ -33,9 +34,7 @@ public class HistoriaDetail {
         this.estadoInicial = estadoInicial;
     }
 
-    public ArrayList<Sesion> getSesiones() {
-        return sesiones;
-    }
+    
 
     public void setSesiones(ArrayList<Sesion> sesiones) {
         this.sesiones = sesiones;
@@ -55,6 +54,14 @@ public class HistoriaDetail {
 
     public void setAntecedente(Antecedente antecedente) {
         this.antecedente = antecedente;
+    }
+
+    public List<Sesion> getSesiones() {
+        return sesiones;
+    }
+
+    public void setSesiones(List<Sesion> sesiones) {
+        this.sesiones = sesiones;
     }
 
     

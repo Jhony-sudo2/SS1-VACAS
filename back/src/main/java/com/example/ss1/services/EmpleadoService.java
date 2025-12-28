@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ss1.DTOS.AsignacionHorarioDTO;
+import com.example.ss1.DTOS.UpdateUser.UpdateSalario;
 import com.example.ss1.PrimariasCompuestas.EmpleadoArea;
 import com.example.ss1.errors.ApiException;
 import com.example.ss1.models.Empleado;
@@ -110,6 +111,16 @@ public class EmpleadoService {
                 .map(AsignacionArea::getArea)
                 .distinct()
                 .toList();
+    }
+
+    public void updateSalario(UpdateSalario data){
+        Empleado empleado = findEmpleadoById(data.getId());
+        if (data.getSalario() < 0) 
+            throw new ApiException("El salario no puede ser negativo", HttpStatus.NOT_FOUND);
+        empleado.setSueldo(data.getSalario());;
+        empleado.setAplicaIgss(data.isAplicaIgss());
+        empleado.setBono(data.getBono());
+        empleadoRepo.save(empleado);
     }
 
     

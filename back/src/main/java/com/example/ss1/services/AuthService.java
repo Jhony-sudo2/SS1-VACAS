@@ -40,7 +40,7 @@ public class AuthService {
         if (passwordEncoder.matches(login.getPassword(), usuario.getPassword())) {
             if (usuario.isA2f()) {
                 String codigo = mailService.generarCodigo();
-                mailService.enviarCodigo(usuario, codigo);
+                mailService.enviarCodigo("CONFIRMACION A2F",usuario, codigo);
                 CodigoConfirmacion tmp = new CodigoConfirmacion();
                 tmp.setCodigo(codigo);
                 tmp.setEmail(usuario.getEmail());

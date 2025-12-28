@@ -22,14 +22,18 @@ public class AdminService {
     private ServicioRepo servicioRepo;
     @Autowired
     private AsignacionServicioRepo asignacionServicioRepo;
+    @Autowired
+    private AzureService azureService;
 
-    public Area guardarArea(String nombre){
-        Area area = new Area();
-        area.setNombre(nombre);
-        return areaRepo.save(area);
+    public Area guardarArea(Area data){
+        String imagen = azureService.uploadBase64(data.getImagen(),"area"+data.getNombre(),null);
+        data.setImagen(imagen);
+        return areaRepo.save(data);
     }
 
     public Servicio saveServicio(Servicio servicio){
+        String imagen = azureService.uploadBase64(servicio.getImagen(), "servicio_"+servicio.getNombre(), null);
+        servicio.setImagen(imagen);
         return servicioRepo.save(servicio);
     }
 

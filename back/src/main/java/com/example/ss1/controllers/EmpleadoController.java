@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ss1.DTOS.AsignacionAreaDTO;
 import com.example.ss1.DTOS.AsignacionHorarioDTO;
+import com.example.ss1.DTOS.UpdateUser.UpdateSalario;
 import com.example.ss1.models.Empleado;
 import com.example.ss1.models.EmpleadoR.Area;
 import com.example.ss1.services.EmpleadoService;
@@ -54,6 +56,10 @@ public class EmpleadoController {
         return empleadoService.findAllEmpleados();
     }
 
+    @PutMapping("/salario")
+    public void updateSalario(@RequestBody UpdateSalario data){
+        empleadoService.updateSalario(data);
+    }
     
 
 }

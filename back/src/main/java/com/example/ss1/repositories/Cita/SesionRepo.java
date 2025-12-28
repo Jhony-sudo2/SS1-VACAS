@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.ss1.enums.Estado;
 import com.example.ss1.models.Cita.Sesion;
 
 public interface SesionRepo extends JpaRepository<Sesion, Long> {
@@ -24,4 +25,5 @@ public interface SesionRepo extends JpaRepository<Sesion, Long> {
 
       List<Sesion> findAllByHistoriaId(Long historia);
       List<Sesion> findAllByHistoria_PacienteId(Long pacienteId);
+      List<Sesion> findAllByHistoria_PacienteIdAndEstado(Long pacienteId,Estado estado);
 }

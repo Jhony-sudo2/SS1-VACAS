@@ -14,6 +14,7 @@ import com.example.ss1.DTOS.CitaDTO.DarAlta;
 import com.example.ss1.DTOS.CitaDTO.HistoriaCreate;
 import com.example.ss1.DTOS.CitaDTO.HistoriaDetail;
 import com.example.ss1.DTOS.CitaDTO.SesionDetail;
+import com.example.ss1.enums.Estado;
 import com.example.ss1.enums.EstadoHistoria;
 import com.example.ss1.errors.ApiException;
 import com.example.ss1.models.Empleado;
@@ -131,14 +132,20 @@ public class HistoriaService {
                 .orElseThrow(() -> new ApiException("Estado inicial no encontrado", HttpStatus.NOT_FOUND));
         HistoriaPersonal historiaPersonal = historiaPersonalRepo.findByHistoriaId(historiaId)
                 .orElseThrow(() -> new ApiException("Historia personal no encontrada", HttpStatus.NOT_FOUND));
+        List<Sesion> sesiones = sesionRepo.findAllByHistoriaId(historiaId);
         data.setHistoria(historia);
         data.setHistoriaPersonal(historiaPersonal);
         data.setEstadoInicial(estadoInicial);
         data.setAntecedente(antecedente);
+        data.setSesiones(sesiones);
         return data;
     }
 
     public void saveSesion(Sesion sesion) {
+        Paciente paciente = sesion.getHistoria().getPaciente();
+        List<Sesion> sesionesPendientes = sesionRepo.findAllByHistoria_PacienteIdAndEstado(paciente.getId(), Estado.AGENDADA);
+        if(!sesionesPendientes.isEmpty())
+            throw new ApiException("El paciente tiene sesiones pendientes de pago", HttpStatus.NOT_FOUND);
         sesionRepo.save(sesion);
     }
 

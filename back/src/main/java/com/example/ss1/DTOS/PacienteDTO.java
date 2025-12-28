@@ -1,5 +1,7 @@
 package com.example.ss1.DTOS;
 
+import java.time.LocalDate;
+
 public class PacienteDTO {
     private String nombre;
     private boolean genero;
@@ -10,6 +12,8 @@ public class PacienteDTO {
     private String personaEmergencia;
     private String telefonoEmergencia;
     private String procedencia;
+    private LocalDate fechaNacimiento;
+    
     public String getNombre() {
         return nombre;
     }
@@ -63,6 +67,12 @@ public class PacienteDTO {
     }
     public void setProcedencia(String procedencia) {
         this.procedencia = procedencia;
+    }
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
     
 }

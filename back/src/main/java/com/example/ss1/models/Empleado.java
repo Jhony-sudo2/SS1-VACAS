@@ -24,12 +24,30 @@ public class Empleado {
     private String telefono;
     private String colegiado;
     private double sueldo;
-
+    private double bono;
+    private boolean aplicaIgss;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     
+    
+    public double getBono() {
+        return bono;
+    }
+
+    public void setBono(double bono) {
+        this.bono = bono;
+    }
+
+    public boolean isAplicaIgss() {
+        return aplicaIgss;
+    }
+
+    public void setAplicaIgss(boolean aplicaIgss) {
+        this.aplicaIgss = aplicaIgss;
+    }
+
     public Long getId() {
         return id;
     }

@@ -15,6 +15,7 @@ import com.example.ss1.DTOS.EmpleadoDTO;
 import com.example.ss1.DTOS.PacienteDTO;
 import com.example.ss1.DTOS.UserCreate;
 import com.example.ss1.DTOS.UpdateUser.UpdatePassword;
+import com.example.ss1.enums.Rol;
 import com.example.ss1.errors.ApiException;
 import com.example.ss1.models.CodigoConfirmacion;
 import com.example.ss1.models.Empleado;
@@ -73,10 +74,10 @@ public class UsuarioService {
             PacienteDTO data = dataCreate.getPaciente();
             Paciente paciente = new Paciente(data.getNombre(), data.isGenero(), data.isEstadoCivil(),
                     data.getDireccion(), data.getNivelEducativo(), data.getTelefono(), data.getPersonaEmergencia(),
-                    data.getTelefonoEmergencia(), data.getProcedencia(), usuario);
+                    data.getTelefonoEmergencia(), data.getProcedencia(), usuario,data.getFechaNacimiento());
             pacienteRepo.save(paciente);
         }
-        mailService.enviarCodigo(usuario, codigo);
+        mailService.enviarCodigo("Confirmacion de correo electronico",usuario, codigo);
     }
 
     /**
@@ -166,7 +167,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new ApiException("Usuario no encontrado", HttpStatus.NOT_FOUND));
         CodigoConfirmacion tmp = new CodigoConfirmacion();
         String codigo = mailService.generarCodigo();
-        mailService.enviarCodigo(usuario, codigo);
+        mailService.enviarCodigo("RECUPERAR CONTRASENIA",usuario, codigo);
         tmp.setCodigo(codigo);
         tmp.setEmail(usuario.getEmail());
         tmp.setVencimiento(LocalDateTime.now().plusMinutes(15));
@@ -192,6 +193,34 @@ public class UsuarioService {
 
     public List<Empleado> getAllEmpleados() {
         return empleadoRepo.findAll();
+    }
+
+    public void updateEmpleado(Empleado empleado){
+        Empleado empleado2 = findEmpleadoById(empleado.getId());
+        empleado2.setEstadoCivil(empleado.isEstadoCivil());
+        empleado2.setFechaNacimiento(empleado.getFechaNacimiento());
+        empleado2.getUsuario().setA2f(empleado.getUsuario().isA2f());
+        empleado2.setTelefono(empleado.getTelefono());
+        empleadoRepo.save(empleado2);
+    }
+
+    public void updatePaciente(Paciente paciente){
+        Paciente paciente2 = findPacienteById(paciente.getId());
+        paciente2.setFechaNacimiento(paciente.getFechaNacimiento());
+        paciente2.setTelefono(paciente.getTelefono());
+        paciente2.setGenero(paciente.isGenero());
+        paciente2.setDireccion(paciente.getDireccion());
+        paciente2.setPersonaEmergencia(paciente.getPersonaEmergencia());
+        paciente2.setTelefonoEmergencia(paciente.getTelefonoEmergencia());
+        paciente2.setNivelEducativo(paciente.getNivelEducativo());
+        paciente2.setProcedencia(paciente.getProcedencia());
+        paciente2.getUsuario().setA2f(paciente.getUsuario().isA2f());
+        pacienteRepo.save(paciente2);
+
+    }
+
+    public List<Usuario> findByRol(Rol rol){
+        return usuarioRepo.findAllByRol(rol);
     }
 
 }

@@ -19,7 +19,7 @@ public class AdminController {
 
     @PostMapping("/area")
     public Area saveArea(@RequestBody Area area){
-        return adminService.guardarArea(area.getNombre());
+        return adminService.guardarArea(area);
     }
 
     @PostMapping("/servicio")

@@ -44,20 +44,30 @@ public class MailService {
         mailSender.send(mime);
     }
 
-    public void enviarCodigo(Usuario usuario, String codigo) {
+    public void enviarCodigo(String subjetc,Usuario usuario, String codigo) {
         String cuerpo = """
                 Hola,
 
                 Este es tu código de verificación de correo electrónico:
 
                 %s
-
-                Si tú no creaste esta cuenta, puedes ignorar este correo.
                 """.formatted(codigo);
 
         sendText(
                 usuario.getEmail(),
-                "Confirmación de correo electrónico",
+                subjetc,
+                cuerpo);
+    }
+
+    public void enviarNotificacion(String subjetc,Usuario usuario, String mensaje) {
+        String cuerpo = """
+                Hola,
+                %s
+                """.formatted(mensaje);
+
+        sendText(
+                usuario.getEmail(),
+                subjetc,
                 cuerpo);
     }
 

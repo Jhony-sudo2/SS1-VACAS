@@ -1,5 +1,7 @@
 package com.example.ss1.models;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +26,7 @@ public class Paciente {
     private String personaEmergencia;
     private String telefonoEmergencia;
     private String procedencia;
+    private LocalDate fechaNacimiento;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
@@ -32,7 +35,7 @@ public class Paciente {
         
     }
     public Paciente(String nombre, boolean genero, boolean estadoCivil, String direccion, String nivelEducativo,
-            String telefono, String personaEmergencia, String telefonoEmergencia, String procedencia, Usuario usuario) {
+            String telefono, String personaEmergencia, String telefonoEmergencia, String procedencia, Usuario usuario,LocalDate fechaNacimiento) {
         this.nombre = nombre;
         this.genero = genero;
         this.estadoCivil = estadoCivil;
@@ -43,7 +46,9 @@ public class Paciente {
         this.telefonoEmergencia = telefonoEmergencia;
         this.procedencia = procedencia;
         this.usuario = usuario;
+        this.fechaNacimiento = fechaNacimiento;
     }
+    
     public Long getId() {
         return id;
     }
@@ -109,6 +114,12 @@ public class Paciente {
     }
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     

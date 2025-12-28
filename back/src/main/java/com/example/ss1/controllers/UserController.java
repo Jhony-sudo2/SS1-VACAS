@@ -63,12 +63,12 @@ public class UserController {
 
     @PutMapping("/empleado")
     public void updateEmpleado(@RequestBody Empleado empleado){
-
+        service.updateEmpleado(empleado);
     }
 
     @PutMapping("/paciente")
-    public void updatePaciente(@RequestBody Paciente empleado){
-
+    public void updatePaciente(@RequestBody Paciente paciente){
+        service.updatePaciente(paciente);
     }
 
     @PutMapping("/password")
