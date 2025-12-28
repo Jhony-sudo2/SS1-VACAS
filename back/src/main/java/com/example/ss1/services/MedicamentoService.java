@@ -14,8 +14,12 @@ import com.example.ss1.repositories.Medicamento.MedicamentoRepo;
 public class MedicamentoService {
     @Autowired
     private MedicamentoRepo medicamentoRepo;
+    @Autowired
+    private AzureService azureService;
 
     public void save(Medicamento medicamento){
+        String imagen = azureService.uploadBase64(medicamento.getImagen(), "med"+medicamento.getId(), null);
+        medicamento.setImagen(imagen);
         medicamentoRepo.save(medicamento);
     }
 

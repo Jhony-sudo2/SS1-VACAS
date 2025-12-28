@@ -23,11 +23,13 @@ public class Empleado {
     private boolean estadoCivil;
     private String telefono;
     private String colegiado;
+    private double sueldo;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    
     public Long getId() {
         return id;
     }
@@ -90,6 +92,14 @@ public class Empleado {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public double getSueldo() {
+        return sueldo;
+    }
+
+    public void setSueldo(double sueldo) {
+        this.sueldo = sueldo;
     }
 
     

@@ -15,7 +15,8 @@ public class Empresa {
     private String nombre;
     private double precioCita;
     private int tiempoCita;
-
+    private String imagen;
+    
     
     public Long getId() {
         return id;
@@ -41,6 +42,12 @@ public class Empresa {
     }
     public void setPrecioCita(double precioCita) {
         this.precioCita = precioCita;
+    }
+    public String getImagen() {
+        return imagen;
+    }
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
     
 }
