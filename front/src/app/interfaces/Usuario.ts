@@ -1,7 +1,9 @@
 export enum Rol{
 ADMIN = "ADMIN",
 PACIENTE = "PACIENTE",
-TRABAJADOR = "TRABAJADOR"
+TRABAJADOR = "TRABAJADOR",
+ADMINISTRATIVO = "ADMINISTRATIVO",
+MANTENIMIENTO = "MANTENIMIENTO"
 }
 export interface Usuario{
     id:number|undefined,
@@ -35,6 +37,8 @@ export interface Empleado{
     estadoCivil:boolean,
     telefono:string,
     colegiado:string,
-    salario:number,
+    sueldo:number,
+    bono:number,
+    aplicaIgss:boolean
     usuario:Usuario
 }

@@ -91,7 +91,9 @@ export class CreateUserComponent implements OnInit {
       estadoCivil: empleadoForm.estadoCivil,
       telefono: empleadoForm.telefono,
       colegiado: empleadoForm.colegiado,
-      salario: Number(empleadoForm.salario),
+      sueldo: Number(empleadoForm.salario),
+      bono:0,
+      aplicaIgss:false,
       usuario,
     };
 

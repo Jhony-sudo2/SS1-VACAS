@@ -3,6 +3,8 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { AtencionEmpleadoDTO, MedicamentoMinimo, ReporteFinancieroDTO, TopMedicamentoDTO } from '../interfaces/Reporte';
 import { Detalle, PagoSesion, ResponseReceta, Venta } from '../interfaces/Pago';
 import { Medicamento } from '../interfaces/Medicamento';
+import { HistoriaDetail } from '../interfaces/Historia';
+import { Sesion } from '../interfaces/Sesion';
 
 (<any>pdfMake).addVirtualFileSystem(pdfFonts);
 
@@ -695,5 +697,233 @@ export class PdGenerator {
     return `**** **** **** ${last4}`;
   }
 
+  pdfHistoria(detalle: HistoriaDetail, action: 'open'|'download'|'print' = 'open') {
+    const h = detalle?.historia;
+    const p = h?.paciente;
+
+    const pacienteNombre = p?.nombre ?? '—';
+    const empleadoNombre = (h?.empleado as any)?.nombre ?? (h?.empleado as any)?.nombreCompleto ?? '—';
+
+    const folio = `HC-${h?.id ?? 'SN'}`;
+
+    const doc: any = {
+      pageSize: 'A4',
+      pageMargins: [40, 70, 40, 55],
+
+      header: (currentPage: number, pageCount: number) => ({
+        margin: [40, 18, 40, 0],
+        columns: [
+          {
+            width: '*',
+            stack: [
+              { text: 'HISTORIA CLÍNICA', style: 'title' },
+              { text: `Folio: ${folio}`, style: 'subtitle' },
+            ]
+          },
+          {
+            width: 'auto',
+            stack: [
+              { text: this.formatDateTime(new Date()), style: 'meta', alignment: 'right' },
+              { text: `Página ${currentPage} de ${pageCount}`, style: 'meta', alignment: 'right' },
+            ]
+          }
+        ]
+      }),
+
+      footer: () => ({
+        margin: [40, 0, 40, 20],
+        columns: [
+          { text: 'Documento clínico - uso interno', style: 'footer' },
+          { text: ' ', width: '*' },
+          { text: 'Confidencial', style: 'footer', alignment: 'right' }
+        ]
+      }),
+
+      content: [
+        // Resumen de cabecera (Paciente / Profesional / Datos historia)
+        this.cardTwoCols(
+          [
+            this.kv('Paciente', pacienteNombre),
+            this.kv('Teléfono', p?.telefono ?? '—'),
+            this.kv('Dirección', p?.direccion ?? '—'),
+            this.kv('Procedencia', (p?.procedencia as any) ?? '—'),
+          ],
+          [
+            this.kv('Profesional', empleadoNombre),
+            this.kv('Fecha apertura', h?.fechaApertura ? this.formatDateSimple(h.fechaApertura) : '—'),
+            this.kv('Motivo consulta', h?.motivoConsulta ?? '—'),
+            this.kv('Estado', this.asText(h?.estado) ?? '—'),
+          ]
+        ),
+
+        // Datos clínicos generales
+        { text: 'Datos generales', style: 'section', margin: [0, 16, 0, 6] },
+        this.tableNice(
+          [
+            ['Modalidad', 'Sesiones', 'Duración', 'Costo sesión', 'Frecuencia', 'Enfoque'],
+            [
+              this.asText(h?.modalidad) ?? '—',
+              this.formatNumber(h?.sesiones ?? 0),
+              `${this.formatNumber(h?.duracion ?? 0)} min`,
+              this.formatMoney(h?.costoSesion ?? 0),
+              this.asText(h?.frecuencia) ?? '—',
+              this.asText(h?.enfoque) ?? '—'
+            ]
+          ],
+          ['18%', '12%', '14%', '18%', '18%', '20%'],
+          { colAlignRight: [1,2,3] }
+        ),
+
+        // Historia personal
+        { text: 'Historia personal', style: 'section', margin: [0, 16, 0, 6] },
+        this.longTextCard('Desarrollo', detalle?.historiaPersonal?.desarrollo),
+        this.longTextCard('Historia académica', detalle?.historiaPersonal?.historiaAcademica),
+        this.longTextCard('Historia médica', detalle?.historiaPersonal?.historiaMedica),
+        this.longTextCard('Medicación actual', detalle?.historiaPersonal?.medicacionActual),
+        this.longTextCard('Tratamientos previos', detalle?.historiaPersonal?.tratamientosPrevios),
+        this.longTextCard('Hospitalizaciones', detalle?.historiaPersonal?.hospitalizaciones),
+
+        // Consumos
+        { text: 'Consumo', style: 'section', margin: [0, 16, 0, 6] },
+        this.tableNice(
+          [
+            ['Alcohol', 'Tabaco', 'Drogas'],
+            [
+              this.asText(detalle?.historiaPersonal?.alcohol) ?? '—',
+              this.asText(detalle?.historiaPersonal?.tabaco) ?? '—',
+              this.asText(detalle?.historiaPersonal?.drogas) ?? '—',
+            ]
+          ],
+          ['33%', '33%', '34%']
+        ),
+
+        // Antecedentes
+        { text: 'Antecedentes', style: 'section', margin: [0, 16, 0, 6] },
+        this.longTextCard('Estructura familiar / soporte', detalle?.antecedente?.estructura),
+        this.longTextCard('Trastornos', detalle?.antecedente?.trastornos),
+        this.longTextCard('Eventos relevantes', detalle?.antecedente?.eventos),
+
+        // Estado inicial
+        { text: 'Estado inicial', style: 'section', margin: [0, 16, 0, 6] },
+        this.tableNice(
+          [
+            ['Ánimo', 'Ansiedad', 'Func. social', 'Sueño', 'Apetito'],
+            [
+              this.asText(detalle?.estadoInicial?.animo) ?? '—',
+              this.asText(detalle?.estadoInicial?.ansiedad) ?? '—',
+              this.asText(detalle?.estadoInicial?.funcionamientosocial) ?? '—',
+              this.asText(detalle?.estadoInicial?.suenio) ?? '—',
+              this.asText(detalle?.estadoInicial?.apetito) ?? '—',
+            ]
+          ],
+          ['20%', '20%', '20%', '20%', '20%']
+        ),
+        this.longTextCard('Observaciones', detalle?.estadoInicial?.observaciones),
+
+        // Sesiones
+        { text: 'Sesiones', style: 'section', margin: [0, 16, 0, 6] },
+        this.blockSesiones(detalle?.sesiones ?? []),
+
+        // Motivo alta (si existiera)
+        ...(h?.motivoAlta ? [{ text: 'Motivo de alta', style: 'section', margin: [0, 16, 0, 6] }, this.longTextCard('', h.motivoAlta)] : [])
+      ],
+
+      styles: this.historiaStyles()
+    };
+
+    const pdf = (pdfMake as any).createPdf(doc);
+    this.runPdf(pdf, action, `historia_${folio}_${this.safeDateFile(new Date())}.pdf`);
+  }
+
+  // ========== SECCIONES ==========
+  private blockSesiones(sesiones: Sesion[]) {
+    if (!sesiones || sesiones.length === 0) return this.noData('No hay sesiones registradas.');
+
+    const body: any[] = [
+      ['#', 'Fecha', 'Estado', 'Pago', 'Temas', 'Observaciones'],
+      ...sesiones
+        .sort((a,b) => (a.numero ?? 0) - (b.numero ?? 0))
+        .map(s => ([
+          { text: String(s.numero ?? ''), style: 'cellMuted', alignment: 'right' },
+          { text: s.fecha ? this.formatDateSimple(s.fecha) : '—', style: 'cellMuted' },
+          { text: this.asText(s.estado) ?? '—', style: 'cellMuted' },
+          s.estadoPago ? { text: 'PAGADA', style: 'badgeOk', alignment: 'center' } : { text: 'PENDIENTE', style: 'badgeWarn', alignment: 'center' },
+          { text: this.short(s.temas, 60), style: 'cell' },
+          { text: this.short(s.observaciones, 60), style: 'cellMuted' }
+        ]))
+    ];
+
+    return this.tableNice(
+      body,
+      ['6%', '14%', '14%', '12%', '27%', '27%'],
+      { colAlignRight: [0] }
+    );
+  }
+
+  private longTextCard(title: string, text?: string) {
+    const t = (text ?? '').trim();
+    return {
+      margin: [0, 6, 0, 0],
+      table: {
+        widths: ['*'],
+        body: [[{
+          fillColor: '#F6F7FB',
+          margin: [10, 10, 10, 10],
+          stack: [
+            ...(title ? [{ text: title, style: 'subsection' }] : []),
+            { text: t ? t : '—', style: 'paragraph' }
+          ]
+        }]]
+      },
+      layout: 'noBorders'
+    };
+  }
+
+  // ========== ESTILOS ==========
+  private historiaStyles() {
+    return {
+      title: { fontSize: 16, bold: true, color: '#111' },
+      subtitle: { fontSize: 10, color: '#666' },
+      meta: { fontSize: 9, color: '#666' },
+
+      section: { fontSize: 12, bold: true, color: '#111' },
+      subsection: { fontSize: 10, bold: true, color: '#111', margin: [0, 0, 0, 4] },
+      paragraph: { fontSize: 9, color: '#333', lineHeight: 1.2 },
+
+      label: { fontSize: 9, color: '#444' },
+      value: { fontSize: 10, bold: true, color: '#111' },
+
+      tableHeader: { bold: true, fontSize: 10, color: 'white', fillColor: '#111', margin: [0, 4, 0, 4] },
+      cell: { fontSize: 9, color: '#111' },
+      cellMuted: { fontSize: 9, color: '#555' },
+
+      badgeOk: { fontSize: 9, color: 'white', fillColor: '#2E7D32', margin: [0, 2, 0, 2] },
+      badgeWarn: { fontSize: 9, color: 'white', fillColor: '#B26A00', margin: [0, 2, 0, 2] },
+
+      footer: { fontSize: 9, color: '#777' }
+    };
+  }
+
+ 
+
+  private asText(x: any): string | null {
+    if (x == null) return null;
+    if (typeof x === 'string') return x;
+    if (typeof x === 'number' || typeof x === 'boolean') return String(x);
+
+    // intenta propiedades comunes
+    if (typeof x === 'object') {
+      return x.nombre ?? x.descripcion ?? x.valor ?? x.label ?? JSON.stringify(x);
+    }
+    return String(x);
+  }
+
+  private short(s?: string, max = 80) {
+    const t = (s ?? '').trim();
+    if (!t) return '—';
+    return t.length > max ? (t.slice(0, max - 1) + '…') : t;
+  }
+
+  
 
 }

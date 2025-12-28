@@ -1,155 +1,227 @@
 <div class="min-h-screen bg-slate-100 p-4 md:p-6">
-    <div class="mx-auto max-w-6xl space-y-6">
+  <div class="mx-auto max-w-6xl space-y-6">
 
-        <div class="flex items-center justify-between">
-            <h1 class="text-xl md:text-2xl font-bold text-slate-800">Administración: Áreas y Servicios</h1>
-            <button type="button" (click)="cargarListas()"
-                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50">
-                Recargar
-            </button>
-        </div>
-
-        <!-- 2 columnas -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- Crear Área -->
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div class="p-4 md:p-6">
-                    <h2 class="text-lg font-semibold text-slate-800">Crear Área</h2>
-                    <p class="text-sm text-slate-500 mt-1">Registra nuevas áreas de trabajo.</p>
-
-                    <div class="mt-4">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del área</label>
-                        <input [(ngModel)]="areaNombre" name="areaNombre" type="text"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
-                            placeholder="Ej. Pediatría" />
-                    </div>
-
-                    <div class="mt-4 flex gap-2">
-                        <button type="button" (click)="crearArea()"
-                            class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700">
-                            Guardar área
-                        </button>
-                        <button type="button" (click)="areaNombre=''"
-                            class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
-                            Limpiar
-                        </button>
-                    </div>
-
-                    <div class="mt-5">
-                        <div class="text-xs font-semibold text-slate-500 mb-2">Áreas existentes</div>
-                        <div class="max-h-56 overflow-auto rounded-xl border border-slate-200">
-                            <div *ngFor="let a of areas"
-                                class="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                                <span class="text-sm text-slate-800">{{ a.nombre }}</span>
-                                <span class="text-xs text-slate-500">ID: {{ a.id }}</span>
-                            </div>
-                            <div *ngIf="areas.length === 0" class="px-3 py-6 text-center text-sm text-slate-500">
-                                No hay áreas registradas.
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Crear Servicio -->
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div class="p-4 md:p-6">
-                    <h2 class="text-lg font-semibold text-slate-800">Crear Servicio</h2>
-                    <p class="text-sm text-slate-500 mt-1">Registra los servicios que se pueden asignar a áreas.</p>
-
-                    <div class="mt-4">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del servicio</label>
-                        <input [(ngModel)]="servicioNombre" name="servicioNombre" type="text"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
-                            placeholder="Ej. Consulta externa" />
-                    </div>
-
-                    <div class="mt-4 flex gap-2">
-                        <button type="button" (click)="crearServicio()"
-                            class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700">
-                            Guardar servicio
-                        </button>
-                        <button type="button" (click)="servicioNombre=''"
-                            class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
-                            Limpiar
-                        </button>
-                    </div>
-
-                    <div class="mt-5">
-                        <div class="text-xs font-semibold text-slate-500 mb-2">Servicios existentes</div>
-                        <div class="max-h-56 overflow-auto rounded-xl border border-slate-200">
-                            <div *ngFor="let s of servicios"
-                                class="flex items-center justify-between px-3 py-2 border-b border-slate-100">
-                                <span class="text-sm text-slate-800">{{ s.nombre }}</span>
-                                <span class="text-xs text-slate-500">ID: {{ s.id }}</span>
-                            </div>
-                            <div *ngIf="servicios.length === 0" class="px-3 py-6 text-center text-sm text-slate-500">
-                                No hay servicios registrados.
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Asignar servicios a un área -->
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="p-4 md:p-6">
-                <h2 class="text-lg font-semibold text-slate-800">Asignar servicios a un área</h2>
-                <p class="text-sm text-slate-500 mt-1">Selecciona un área y marca los servicios que le corresponden.</p>
-
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Select área -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Área</label>
-                        <select [(ngModel)]="selectedAreaId" name="selectedAreaId" (change)="onChangeArea()"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500">
-                            <option [ngValue]="null">-- Selecciona un área --</option>
-                            <option *ngFor="let a of areas" [ngValue]="a.id">{{ a.nombre }}</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-end">
-                        <button type="button" (click)="guardarAsignacion()"
-                            class="w-full md:w-auto rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 active:bg-emerald-700">
-                            Guardar asignación
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Checklist servicios -->
-                <div class="mt-5 rounded-xl border border-slate-200 overflow-hidden">
-                    <div class="bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                        Servicios
-                    </div>
-
-                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label *ngFor="let s of servicios"
-                            class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50">
-                            <input type="checkbox" [disabled]="s.id === undefined || !selectedAreaId"
-                                [checked]="s.id !== undefined && serviciosSeleccionados.includes(s.id)"
-                                (change)="toggleServicioEvent(s.id, $event)" class="h-5 w-5 rounded border-slate-300" />
-                            <div class="flex-1">
-                                <div class="text-sm font-semibold text-slate-800">{{ s.nombre }}</div>
-                                <div class="text-xs text-slate-500">ID: {{ s.id }}</div>
-                            </div>
-                        </label>
-
-                        <div *ngIf="servicios.length === 0" class="text-sm text-slate-500">
-                            No hay servicios registrados.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3 text-xs text-slate-500">
-                    * Debes seleccionar un área para habilitar el checklist.
-                </div>
-
-            </div>
-        </div>
-
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl md:text-2xl font-bold text-slate-800">Administración: Áreas y Servicios</h1>
+      <button type="button" (click)="cargarListas()"
+        class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50">
+        Recargar
+      </button>
     </div>
+
+    <!-- 2 columnas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Crear Área -->
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="p-4 md:p-6">
+          <h2 class="text-lg font-semibold text-slate-800">Crear Área</h2>
+          <p class="text-sm text-slate-500 mt-1">Registra nuevas áreas de trabajo.</p>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del área</label>
+            <input [(ngModel)]="areaNombre" name="areaNombre" type="text"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              placeholder="Ej. Pediatría" />
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
+            <textarea [(ngModel)]="areaDescripcion" name="areaDescripcion" rows="3"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              placeholder="Descripción del área..."></textarea>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Imagen</label>
+            <input type="file" accept="image/*" (change)="onAreaFileSelected($event)"
+              class="block w-full text-sm text-slate-700
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-xl file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-slate-200 file:text-slate-800
+                     hover:file:bg-slate-300" />
+
+            <div *ngIf="areaImagenPreview" class="mt-3 flex items-start gap-3">
+              <img [src]="areaImagenPreview" class="w-14 h-14 rounded-xl object-cover border border-slate-200" />
+              <div class="flex-1">
+                <div class="text-xs text-slate-600">Archivo: <span class="font-semibold">{{ areaImagenNombre }}</span></div>
+                <button type="button" (click)="quitarAreaImagen()"
+                  class="mt-2 rounded-xl bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-200">
+                  Quitar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-2">
+            <button type="button" (click)="crearArea()"
+              class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700">
+              Guardar área
+            </button>
+            <button type="button" (click)="limpiarAreaForm()"
+              class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+              Limpiar
+            </button>
+          </div>
+
+          <div class="mt-5">
+            <div class="text-xs font-semibold text-slate-500 mb-2">Áreas existentes</div>
+            <div class="max-h-56 overflow-auto rounded-xl border border-slate-200">
+              <div *ngFor="let a of areas"
+                class="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <img *ngIf="a.imagen" [src]="a.imagen" class="w-9 h-9 rounded-lg object-cover border border-slate-200" />
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">{{ a.nombre }}</div>
+                    <div class="text-xs text-slate-500 line-clamp-1">{{ a.descripcion }}</div>
+                  </div>
+                </div>
+                <span class="text-xs text-slate-500">ID: {{ a.id }}</span>
+              </div>
+
+              <div *ngIf="areas.length === 0" class="px-3 py-6 text-center text-sm text-slate-500">
+                No hay áreas registradas.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Crear Servicio -->
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="p-4 md:p-6">
+          <h2 class="text-lg font-semibold text-slate-800">Crear Servicio</h2>
+          <p class="text-sm text-slate-500 mt-1">Registra los servicios que se pueden asignar a áreas.</p>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del servicio</label>
+            <input [(ngModel)]="servicioNombre" name="servicioNombre" type="text"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              placeholder="Ej. Consulta externa" />
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
+            <textarea [(ngModel)]="servicioDescripcion" name="servicioDescripcion" rows="3"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500"
+              placeholder="Descripción del servicio..."></textarea>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Imagen</label>
+            <input type="file" accept="image/*" (change)="onServicioFileSelected($event)"
+              class="block w-full text-sm text-slate-700
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-xl file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-slate-200 file:text-slate-800
+                     hover:file:bg-slate-300" />
+
+            <div *ngIf="servicioImagenPreview" class="mt-3 flex items-start gap-3">
+              <img [src]="servicioImagenPreview" class="w-14 h-14 rounded-xl object-cover border border-slate-200" />
+              <div class="flex-1">
+                <div class="text-xs text-slate-600">Archivo: <span class="font-semibold">{{ servicioImagenNombre }}</span></div>
+                <button type="button" (click)="quitarServicioImagen()"
+                  class="mt-2 rounded-xl bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-200">
+                  Quitar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-2">
+            <button type="button" (click)="crearServicio()"
+              class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700">
+              Guardar servicio
+            </button>
+            <button type="button" (click)="limpiarServicioForm()"
+              class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+              Limpiar
+            </button>
+          </div>
+
+          <div class="mt-5">
+            <div class="text-xs font-semibold text-slate-500 mb-2">Servicios existentes</div>
+            <div class="max-h-56 overflow-auto rounded-xl border border-slate-200">
+              <div *ngFor="let s of servicios"
+                class="flex items-center justify-between px-3 py-2 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                  <img *ngIf="s.imagen" [src]="s.imagen" class="w-9 h-9 rounded-lg object-cover border border-slate-200" />
+                  <div>
+                    <div class="text-sm font-semibold text-slate-800">{{ s.nombre }}</div>
+                    <div class="text-xs text-slate-500 line-clamp-1">{{ s.descripcion }}</div>
+                  </div>
+                </div>
+                <span class="text-xs text-slate-500">ID: {{ s.id }}</span>
+              </div>
+
+              <div *ngIf="servicios.length === 0" class="px-3 py-6 text-center text-sm text-slate-500">
+                No hay servicios registrados.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Asignar servicios a un área -->
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="p-4 md:p-6">
+        <h2 class="text-lg font-semibold text-slate-800">Asignar servicios a un área</h2>
+        <p class="text-sm text-slate-500 mt-1">Selecciona un área y marca los servicios que le corresponden.</p>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Select área -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Área</label>
+            <select [(ngModel)]="selectedAreaId" name="selectedAreaId" (change)="onChangeArea()"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500">
+              <option [ngValue]="null">-- Selecciona un área --</option>
+              <option *ngFor="let a of areas" [ngValue]="a.id">{{ a.nombre }}</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button type="button" (click)="guardarAsignacion()"
+              class="w-full md:w-auto rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 active:bg-emerald-700">
+              Guardar asignación
+            </button>
+          </div>
+        </div>
+
+        <!-- Checklist servicios -->
+        <div class="mt-5 rounded-xl border border-slate-200 overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            Servicios
+          </div>
+
+          <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <label *ngFor="let s of servicios"
+              class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50">
+              <input type="checkbox" [disabled]="s.id === undefined || !selectedAreaId"
+                [checked]="s.id !== undefined && serviciosSeleccionados.includes(s.id)"
+                (change)="toggleServicioEvent(s.id, $event)" class="h-5 w-5 rounded border-slate-300" />
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-slate-800">{{ s.nombre }}</div>
+                <div class="text-xs text-slate-500">ID: {{ s.id }}</div>
+              </div>
+            </label>
+
+            <div *ngIf="servicios.length === 0" class="text-sm text-slate-500">
+              No hay servicios registrados.
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-xs text-slate-500">
+          * Debes seleccionar un área para habilitar el checklist.
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>

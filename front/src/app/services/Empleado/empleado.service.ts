@@ -39,5 +39,10 @@ export class EmpleadoService {
     return this.http.get<Area[]>(this.baseUrl+'/areas',{params:{id}})
   }
 
+  updateSalario(id:number,salario:number,bono:string,aplicaIgss:boolean){
+    const data = {id,salario,bono,aplicaIgss}
+    return this.http.put(this.baseUrl+'/salario',data)
+  }
+
 
 }

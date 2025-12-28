@@ -1,21 +1,22 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environment/environment';
 import { HttpClient } from '@angular/common/http';
-import { Usuario } from '../../interfaces/Usuario';
-import { Observable, tap } from 'rxjs';
+import { Rol, Usuario } from '../../interfaces/Usuario';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 export interface AuthResponse {
   accessToken: string;
   tokenType: string;
   expiresIn: number;
   user: Usuario;
-  mensaje:string
+  mensaje: string
 }
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
+  private currentUserSubject!: BehaviorSubject<Usuario | null>;
+  currentUser$ = this.getCurrentUser$();
   private readonly baseUrl = `${environment.baseUrlEnv}/auth`;
   private readonly TOKEN_KEY = 'ss1_token';
   private readonly USER_KEY = 'ss1_user';
@@ -23,8 +24,14 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private cookies: CookieService
-  ) { }
+  ) { this.currentUserSubject = new BehaviorSubject<Usuario | null>(this.getCurrentUser());
+    this.currentUser$ = this.currentUserSubject.asObservable();}
+  
 
+   private getCurrentUser$() {
+    // placeholder para que TypeScript no se queje
+    return new BehaviorSubject<Usuario | null>(null).asObservable();
+  }
   login(email: string, password: string): Observable<AuthResponse> {
     const body = { email, password };
 
@@ -32,7 +39,7 @@ export class AuthService {
       tap((res) => {
         // Solo guardar si REALMENTE viene un token (caso login completo)
         console.log(res);
-        
+
         if (res.accessToken && res.user && !res.mensaje) {
           this.setSession(res);
         }
@@ -73,6 +80,7 @@ export class AuthService {
   logout(): void {
     this.cookies.delete(this.TOKEN_KEY, '/');
     this.cookies.delete(this.USER_KEY, '/');
+    this.currentUserSubject.next(null);
   }
 
   getToken(): string | null {
@@ -87,5 +95,12 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  hasType(required: Rol | Rol[]): boolean {
+    const current = this.getCurrentUser();
+    if (!current) return false;
+    const req = Array.isArray(required) ? required : [required];
+    return req.includes(current.rol);
   }
 }

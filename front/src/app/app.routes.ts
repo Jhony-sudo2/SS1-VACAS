@@ -22,15 +22,18 @@ import { PerfilComponent } from './User/perfil/perfil.component';
 import { RecupearContraseniaComponent } from './User/recupear-contrasenia/recupear-contrasenia.component';
 import { CitasSesionesComponent } from './Paciente/citas-sesiones/citas-sesiones.component';
 import { CitaSesionPagoComponent } from './Empleado/cita-sesion-pago/cita-sesion-pago.component';
-import { NominaComponent } from './Empleado/nomina/nomina.component';
+import { MainComponent } from './Empleado/nomina/nomina.component';
 import { ReportesComponent } from './Empleado/reportes/reportes.component';
 import { EmpresaComponent } from './Empleado/empresa/empresa.component';
+import { SueldoComponent } from './Empleado/sueldo/sueldo.component';
 
 export const routes: Routes = [
-     {path:'auth',component:LoginComponent,title:'login'},
-     {path:'recuperar-contrasenia',component:RecupearContraseniaComponent,title:'Recuperar contrasenia'},
+    {path:'auth',component:LoginComponent,title:'login'},
+    {path:'recuperar-contrasenia',component:RecupearContraseniaComponent,title:'Recuperar contrasenia'},
+    {path:'paciente-create',component:CreatePacienteComponent,title:'Crear paciente'},
     {path:'',component:NavComponent,title:'Main',children:[
-        {path:'paciente-create',component:CreatePacienteComponent,title:'Crear paciente'},
+        { path: '', redirectTo: 'main', pathMatch: 'full' },
+        {path:'main',component:MainComponent,title:'MAIN'},
         {path:'usuario-create',component:CreateUserComponent,title:'Crear usuario'},
         {path:'asignar-horario/:empleadoId',component:AsignarHorarioComponent,title:'Asignar Horario'},
         {path:'lista-empleado',component:ListaComponent,title:'Lista empleados'},
@@ -50,8 +53,8 @@ export const routes: Routes = [
         {path:'mi-perfil',component:PerfilComponent,title:'My perfil'},
         {path:'sesiones-citas',component:CitasSesionesComponent,title:'Mis citas y sesiones'},
         {path:'pago-sesiones',component:CitaSesionPagoComponent,title:'Pago citas y sesiones'},
-        {path:'nomina',component:NominaComponent,title:'Nominas'},
         {path:'reportes',component:ReportesComponent,title:'Reporte'},
-        {path:'empresa',component:EmpresaComponent,title:'Empresa'}
+        {path:'empresa',component:EmpresaComponent,title:'Empresa'},
+        {path:'sueldo/:empleadoId',component:SueldoComponent,title:'Sueldo'}
     ]},
 ];

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environment/environment';
 import { Observable } from 'rxjs';
 import { Area, Servicio } from '../../interfaces/Area';
-import { Empresa } from '../../interfaces/Empresa';
+import { Dashboard, Empresa } from '../../interfaces/Empresa';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +31,10 @@ export class GeneralService {
 
   updateEmpresa(empresa:Empresa){
     return this.http.put(this.baseUrl2,empresa)
+  }
+
+  getDashboard():Observable<Dashboard>{
+    return this.http.get<Dashboard>(this.baseUrl2+'/dashboard')
   }
 
 }

@@ -1,6 +1,8 @@
 export interface Area{
     id:number|undefined,
-    nombre:String
+    nombre:String,
+    descripcion:string,
+    imagen:string
 }
 
 export interface AsignacionArea{
@@ -11,9 +13,12 @@ export interface AsignacionArea{
 export interface Servicio{
     id:number|undefined,
     nombre:String
+    descripcion:string,
+    imagen:string
 }
 
 export interface AsignacionServicio{
     areaId:number,
-    servicios:number[]
+    servicios:number[],
+    
 }

@@ -48,7 +48,10 @@
                   {{ esPaciente ? getNombreEmpleado(h) : getNombrePaciente(h) }}
                 </div>
               </div>
-
+              <a *ngIf="!esPaciente" class="inline-flex items-center rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500 active:bg-indigo-700 transition"
+                                    [routerLink]="['/sesion-gestion', h.id]">
+                                    Gestionar
+                                </a>
               <span [class]="badgeEstadoHistoriaClass(h.estado)">
                 {{ estadoHistoriaLabel(h.estado) }}
               </span>
@@ -78,6 +81,13 @@
 
             <!-- Acciones -->
             <div class="mt-4 flex justify-end">
+               <button
+                type="button"
+                class="px-4 py-2 rounded-xl font-semibold
+                       bg-slate-800 hover:bg-slate-700 text-slate-100"
+                (click)="generarPdf(h.id!)">
+                {{ 'PDF' }}
+              </button>
               <button
                 type="button"
                 class="px-4 py-2 rounded-xl font-semibold

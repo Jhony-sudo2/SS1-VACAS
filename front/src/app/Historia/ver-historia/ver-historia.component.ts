@@ -6,11 +6,13 @@ import { Rol } from '../../interfaces/Usuario';
 import Swal from 'sweetalert2';
 import { Estado } from '../../interfaces/Cita';
 import { CommonModule } from '@angular/common';
+import { PdGenerator } from '../../utils/PdfMake';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-ver-historia',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterLink],
   templateUrl: './ver-historia.component.html',
   styleUrl: './ver-historia.component.css'
 })
@@ -24,9 +26,8 @@ export class VerHistoriaComponent {
   detailById = new Map<number, HistoriaDetail>();
   loadingDetailId: number | null = null;
 
-  // expand/collapse
   expandedId: number | null = null;
-
+  pdf = new PdGenerator()
   constructor(private servicio: HistoriaService, private auth: AuthService) { }
 
   ngOnInit(): void {
@@ -50,7 +51,6 @@ export class VerHistoriaComponent {
     });
   }
 
-  // helpers
   getNombreEmpleado(h: Historia): string {
     return (h?.empleado as any)?.nombre ?? 'Empleado';
   }
@@ -89,7 +89,6 @@ export class VerHistoriaComponent {
   toggleDetalles(historiaId: number | undefined): void {
     if (!historiaId) return;
 
-    // colapsar si ya estaba abierto
     if (this.expandedId === historiaId) {
       this.expandedId = null;
       return;
@@ -97,7 +96,6 @@ export class VerHistoriaComponent {
 
     this.expandedId = historiaId;
 
-    // si ya está en cache, no consulto
     if (this.detailById.has(historiaId)) return;
 
     this.loadingDetailId = historiaId;
@@ -120,6 +118,16 @@ export class VerHistoriaComponent {
   getDetail(historiaId: number | undefined): HistoriaDetail | null {
     if (!historiaId) return null;
     return this.detailById.get(historiaId) ?? null;
+  }
+
+  generarPdf(id:number){
+    this.servicio.getDetailsHistoria(id).subscribe({
+      next:(response)=>{
+        if(response)
+          this.pdf.pdfHistoria(response,'open')
+      },
+      error:(err)=>{Swal.fire({title:'error',text:err.error,icon:'error'})}
+    })
   }
 
   trackByHistoriaId = (_: number, h: Historia) => h.id;

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../services/Auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 type LoginStep = 'CREDENCIALES' | 'A2F';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule,FormsModule,ReactiveFormsModule],
+  imports: [CommonModule,FormsModule,ReactiveFormsModule,RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

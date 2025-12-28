@@ -59,9 +59,7 @@ export class PerfilComponent {
     }
   }
 
-  // ====== helpers ======
   toInputDate(v: any): string {
-    // acepta Date, string ISO o null
     if (!v) return '';
     const d = new Date(v);
     if (isNaN(d.getTime())) return '';
@@ -72,7 +70,6 @@ export class PerfilComponent {
   }
 
   fromInputDate(s: string): Date {
-    // YYYY-MM-DD
     return new Date(`${s}T00:00:00`);
   }
 
@@ -81,7 +78,6 @@ export class PerfilComponent {
     return this.empleado?.usuario?.email || '';
   }
 
-  // ====== update perfil ======
   actualizarDatos(): void {
     if (!this.usuarioId) return;
 
@@ -118,7 +114,6 @@ export class PerfilComponent {
     }
   }
 
-  // ====== change password ======
   cambiarContrasenia(): void {
     const actual = (this.actual || '').trim();
     const nueva = (this.nueva || '').trim();

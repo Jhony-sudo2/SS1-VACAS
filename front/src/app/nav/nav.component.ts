@@ -1,7 +1,9 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {  Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Rol } from '../interfaces/Usuario';
+import { AuthService } from '../services/Auth/auth.service';
 interface MenuItem {
   label: string;
   icon?: string;
@@ -10,39 +12,25 @@ interface MenuItem {
 }
 @Component({
   selector: 'app-nav',
-  imports: [RouterOutlet,RouterLink,RouterLinkActive,NgClass,CommonModule,FormsModule],
+  imports: [RouterOutlet,RouterLink,RouterLinkActive,CommonModule,FormsModule],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.css'
 })
 export class NavComponent {
-   sidebarOpen = false; // móvil: cerrado al inicio
+  rol:Rol|null = null
+  sidebarOpen = false;
 
-  menu: MenuItem[] = [
-    { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/dashboard'] },
-    {
-      label: 'Créditos',
-      icon: 'pi pi-wallet',
-      items: [
-        { label: 'Listado', routerLink: ['/creditos'] },
-        { label: 'Nuevo crédito', routerLink: ['/creditos/nuevo'] },
-      ],
-    },
-    {
-      label: 'Usuarios',
-      icon: 'pi pi-users',
-      items: [
-        { label: 'Listado', routerLink: ['/usuarios'] },
-        { label: 'Crear usuario', routerLink: ['/usuarios/nuevo'] },
-      ],
-    },
-    { label: 'Configuración', icon: 'pi pi-cog', routerLink: ['/configuracion'] },
-  ];
 
-  toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
+  constructor(private servicio:AuthService,private router:Router){}
+  ngOnInit(){
+    const usuario = this.servicio.getCurrentUser()
+    if(usuario)
+      this.rol = usuario.rol
+  }
+  logout() {
+    this.servicio.logout();           
+    this.router.navigate(['/auth']); 
+    this.ngOnInit()
   }
 
-  closeSidebar(): void {
-    this.sidebarOpen = false;
-  }
 }
