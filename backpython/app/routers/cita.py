@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, time, timedelta
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import Field
@@ -21,6 +21,8 @@ from app.models.pacientes import Pacientes
 from app.schemas.common import CamelModel
 from app.schemas.generated import CitasSchema
 from app.schemas.out import CitaOut
+from sqlalchemy.orm import joinedload
+from app.models.servicios import Servicios
 
 ESTADO_AGENDADA = 0
 ESTADO_PAGADA = 1
@@ -31,9 +33,9 @@ router = APIRouter(prefix="/cita", tags=["cita"])
 
 
 class DisponibilidadCita(CamelModel):
-    empleado_id: int = Field(..., alias="empleadoId")
-    nombre: str
-    disponibles: List[datetime]
+    empleado_id: int
+    nombre_empleado: str
+    horarios_disponibles: List[datetime]
 
 
 class CitaCreate(CamelModel):
@@ -74,27 +76,42 @@ def _paciente_id_from_usuario(db: Session, usuario_id: int) -> int:
 
 @router.get("/disponibilidad", response_model=List[DisponibilidadCita])
 def disponibilidad(idServicio: int = Query(...), fecha: date = Query(...), db: Session = Depends(get_db)):
-    # servicio -> areaIds
-    area_ids = [int(r.area_id) for r in db.query(Asignacionservicio).filter(Asignacionservicio.servicio_id == idServicio).all()]
+
+    # 0) validar servicio exista (como Java)
+    existe_serv = db.query(Servicios.id).filter(Servicios.id == idServicio).first()
+    if not existe_serv:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+
+    area_ids = sorted({
+        int(r.area_id)
+        for r in db.query(Asignacionservicio.area_id).filter(Asignacionservicio.servicio_id == idServicio).all()
+    })
     if not area_ids:
         return []
-    # empleados por areas
-    empleado_ids = sorted({int(r.empleado_id) for r in db.query(Asignacionarea).filter(Asignacionarea.area_id.in_(area_ids)).all()})
+
+    empleado_ids = sorted({
+        int(r.empleado_id)
+        for r in db.query(Asignacionarea.empleado_id).filter(Asignacionarea.area_id.in_(area_ids)).all()
+    })
     if not empleado_ids:
         return []
 
     empresa = db.query(Empresa).filter(Empresa.id == 1).first()
-    duracion_cita = int(empresa.tiempo_cita) if empresa else 15
-    dia = fecha.isoweekday()
+    duracion_cita = int(empresa.tiempo_cita) if empresa and empresa.tiempo_cita else 15
+    if duracion_cita <= 0:
+        raise HTTPException(status_code=500, detail="Empresa.tiempo_cita inválido")
 
+    dia = fecha.isoweekday()  # 1..7 igual que Java
     ini_dia = datetime.combine(fecha, time.min)
     fin_dia = datetime.combine(fecha + timedelta(days=1), time.min)
 
     out: List[DisponibilidadCita] = []
+
     for emp_id in empleado_ids:
         emp = db.query(Empleados).filter(Empleados.id == emp_id).first()
         if not emp:
             continue
+
         h = db.query(Horarios).filter(Horarios.empleado_id == emp_id, Horarios.dia == dia).first()
         if not h or not bool(h.trabaja):
             continue
@@ -103,8 +120,8 @@ def disponibilidad(idServicio: int = Query(...), fecha: date = Query(...), db: S
         fin_jornada = datetime.combine(fecha, h.hora_salida)
 
         ocupados: List[tuple[datetime, datetime]] = []
-        descansos = db.query(Descansos).filter(Descansos.horario_id == h.id).all()
-        for d in descansos:
+
+        for d in db.query(Descansos).filter(Descansos.horario_id == h.id).all():
             a = datetime.combine(fecha, d.inicio)
             b = datetime.combine(fecha, d.fin)
             if b > a:
@@ -121,14 +138,19 @@ def disponibilidad(idServicio: int = Query(...), fecha: date = Query(...), db: S
             b = a + timedelta(minutes=duracion_cita)
             ocupados.append((a, b))
 
-        sesiones = db.query(Sesiones).join(Historias, Sesiones.historia_id == Historias.id).filter(
-            Historias.empleado_id == emp_id,
-            Sesiones.fecha >= ini_dia,
-            Sesiones.fecha < fin_dia,
-        ).all()
+        sesiones = (
+            db.query(Sesiones)
+            .options(joinedload(Sesiones.historia))
+            .join(Historias, Sesiones.historia_id == Historias.id)
+            .filter(
+                Historias.empleado_id == emp_id,
+                Sesiones.fecha >= ini_dia,
+                Sesiones.fecha < fin_dia,
+            )
+            .all()
+        )
         for s in sesiones:
-            historia = db.query(Historias).filter(Historias.id == s.historia_id).first()
-            dur = int(historia.duracion) if historia and historia.duracion else 0
+            dur = int(s.historia.duracion) if s.historia and s.historia.duracion else 0
             if dur <= 0:
                 continue
             a = s.fecha
@@ -137,6 +159,7 @@ def disponibilidad(idServicio: int = Query(...), fecha: date = Query(...), db: S
 
         ocupados_m = _merge(ocupados)
 
+        # Slots cada 15 min
         step = 15
         disponibles: List[datetime] = []
         t = inicio_jornada
@@ -147,20 +170,24 @@ def disponibilidad(idServicio: int = Query(...), fecha: date = Query(...), db: S
             t = t + timedelta(minutes=step)
 
         if disponibles:
-            out.append(DisponibilidadCita(empleadoId=emp_id, nombre=emp.nombre, disponibles=disponibles))
+            out.append(
+                DisponibilidadCita(
+                    empleado_id=emp_id,
+                    nombre_empleado=emp.nombre,
+                    horarios_disponibles=disponibles,
+                )
+            )
 
     return out
 
 
 @router.post("/agendar")
 def agendar(payload: CitaCreate, db: Session = Depends(get_db)):
-    # validar empleado/paciente
     emp = db.query(Empleados).filter(Empleados.id == payload.empleado_id).first()
     if not emp:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
     paciente_id = _paciente_id_from_usuario(db, payload.paciente_id)
 
-    # regla: paciente no debe tener citas AGENDADA
     pendientes = db.query(Citas).filter(Citas.paciente_id == paciente_id, Citas.estado == ESTADO_AGENDADA).all()
     if pendientes:
         raise HTTPException(status_code=406, detail="Tienes citas pendientes de pagas")

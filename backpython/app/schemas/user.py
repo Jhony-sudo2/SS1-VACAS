@@ -63,7 +63,7 @@ class PacienteIn(BaseModel):
     personaEmergencia: Optional[str] = None
     telefonoEmergencia: Optional[str] = None
     procedencia: Optional[str] = None
-    fechaNacimiento: Optional[date] = None
+    fechaNacimiento: Optional[datetime] = None
 
 class UsuarioCreate(BaseModel):
     model_config = ConfigDict(extra="ignore")

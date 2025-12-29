@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query,Body
 from pydantic import Field
 from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session, joinedload
@@ -24,12 +24,12 @@ from app.models.tareas import Tareas
 from app.models.recetas import Recetas
 from app.models.pacientes import Pacientes
 from app.models.empleados import Empleados
+from app.models.medicamentos import Medicamentos
 from app.schemas.common import CamelModel
-from app.schemas.generated import AntecedentesSchema, EstadosinicialesSchema, HistoriasSchema, HistoriaspersonalesSchema, ImpresiondiagnosticaSchema, PruebasaplicadasSchema, RecetasSchema, SesionesSchema, TareasSchema
+from app.schemas.generated import AntecedentesSchema, EstadosinicialesSchema, HistoriasSchema, HistoriaspersonalesSchema, ImpresiondiagnosticaSchema, PruebasaplicadasSchema, RecetaOut, SesionesSchema, TareaOut,SesionIn,RecetaIn,TareaIn
 from app.schemas.out import HistoriaOut, SesionDetailOut
 
 
-# Enums ordinales (según tu backend)
 ESTADO_AGENDADA = 0
 ESTADO_PAGADA = 1
 ESTADO_CANCELADA = 2
@@ -39,7 +39,12 @@ HISTORIA_ACTIVO = 0
 HISTORIA_ALTA = 1
 
 router = APIRouter(prefix="/historia", tags=["historia"])
-
+def pick(data: dict, mapping: dict) -> dict:
+    out = {}
+    for in_key, col_key in mapping.items():
+        if in_key in data and data[in_key] is not None:
+            out[col_key] = data[in_key]
+    return out
 
 class HistoriaCreate(CamelModel):
     empleado_id: int = Field(..., alias="empleadoId")
@@ -78,6 +83,33 @@ class DarAlta(CamelModel):
 class UpdateState(CamelModel):
     id: int
     estado: Optional[int] = None
+PERSONAL_MAP = {
+    "desarrollo": "desarrollo",
+    "historiaAcademica": "historia_academica",
+    "historiaMedica": "historia_medica",
+    "medicacionActual": "medicacion_actual",
+    "tratamientosPrevios": "tratamientos_previos",
+    "hospitalizaciones": "hospitalizaciones",
+    "alcohol": "alcohol",
+    "tabaco": "tabaco",
+    "drogas": "drogas",
+}
+ANTECEDENTE_MAP = {
+    "estructura": "estructura",
+    "eventos": "eventos",
+    "trastornos": "trastornos",
+}
+ESTADO_INICIAL_MAP = {
+    "animmo": "animmo",
+    "ansiedad": "ansiedad",
+    "apetito": "apetito",
+    "suenio": "suenio",
+    "observaciones": "observaciones",
+    # swagger Java: funcionamientosocial / funcionamientoSocial (depende cómo lo tengas)
+    "funcionamientosocial": "funcionamientosocial",
+    "funcionamientoSocial": "funcionamientosocial",
+}
+
 
 
 class SesionDetail(CamelModel):
@@ -130,15 +162,23 @@ def save_historia(payload: HistoriaCompleta, db: Session = Depends(get_db)):
     db.add(historia)
     db.flush()
 
-    # historia personal
-    hp = Historiaspersonales(historia_id=int(historia.id), **payload.personal)
-    db.add(hp)
+    # PERSONAL
+    personal_in = payload.personal or {}
+    personal_data = pick(personal_in, PERSONAL_MAP)
+    personal_data["historia_id"] = int(historia.id)
+    db.add(Historiaspersonales(**personal_data))
 
-    ant = Antecedentes(paciente_id=h.paciente_id, **payload.antecedente)
-    db.add(ant)
+    # ANTECEDENTE
+    ant_in = payload.antecedente or {}
+    ant_data = pick(ant_in, ANTECEDENTE_MAP)
+    ant_data["paciente_id"] = int(h.paciente_id)
+    db.add(Antecedentes(**ant_data))
 
-    ei = Estadosiniciales(historia_id=int(historia.id), **payload.estado_inicial)
-    db.add(ei)
+    # ESTADO INICIAL
+    ei_in = payload.estado_inicial or {}
+    ei_data = pick(ei_in, ESTADO_INICIAL_MAP)
+    ei_data["historia_id"] = int(historia.id)
+    db.add(Estadosiniciales(**ei_data))
 
     db.commit()
     return {"ok": True, "id": int(historia.id)}
@@ -218,7 +258,6 @@ def _solapa(a1: datetime, b1: datetime, a2: datetime, b2: datetime) -> bool:
 
 @router.get("/horarios", response_model=List[datetime])
 def horarios_disponibles(id: int = Query(...), fecha: date = Query(...), duracion: int = Query(...), db: Session = Depends(get_db)):
-    # empleadoId=id
     _empleado(db, id)
     dia = fecha.isoweekday()  # 1..7
     horario = db.query(Horarios).filter(Horarios.empleado_id == id, Horarios.dia == dia).first()
@@ -287,23 +326,58 @@ def horarios_disponibles(id: int = Query(...), fecha: date = Query(...), duracio
 
 
 @router.post("/sesion")
-def crear_sesion(payload: SesionesSchema, db: Session = Depends(get_db)):
-    # regla: paciente no debe tener sesiones AGENDADA pendientes de pago
-    historia = db.query(Historias).filter(Historias.id == payload.historia_id).first()
+def crear_sesion(payload: SesionIn = Body(...), db: Session = Depends(get_db)):
+
+    historia_id = payload.historia_id
+    if not historia_id and payload.historia:
+        historia_id = payload.historia.get("id")
+
+    if not historia_id:
+        raise HTTPException(status_code=422, detail="Debe enviar historiaId o historia.id")
+
+    historia = db.query(Historias).filter(Historias.id == int(historia_id)).first()
     if not historia:
         raise HTTPException(status_code=404, detail="Historia no encontrada")
+
     paciente_id = int(historia.paciente_id)
 
-    pendientes = db.query(Sesiones).join(Historias, Sesiones.historia_id == Historias.id).filter(
-        Historias.paciente_id == paciente_id,
-        Sesiones.estado == ESTADO_AGENDADA,
-    ).all()
+    pendientes = (
+        db.query(Sesiones)
+        .join(Historias, Sesiones.historia_id == Historias.id)
+        .filter(
+            Historias.paciente_id == paciente_id,
+            Sesiones.estado == ESTADO_AGENDADA,
+        )
+        .all()
+    )
     if pendientes:
         raise HTTPException(status_code=404, detail="El paciente tiene sesiones pendientes de pago")
 
-    db.add(payload)
+    estado_int = None
+    if payload.estado is not None:
+        if isinstance(payload.estado, str):
+            estado_int = ESTADO_AGENDADA
+            if estado_int is None:
+                raise HTTPException(status_code=422, detail=f"Estado inválido: {payload.estado}")
+        else:
+            estado_int = int(payload.estado)
+
+    sesion = Sesiones(
+        historia_id=int(historia_id),
+        numero=payload.numero,
+        fecha=payload.fecha,
+        estado=estado_int if estado_int is not None else ESTADO_AGENDADA,
+        justificacion=payload.justificacion,
+        temas=payload.temas,
+        respuestas=payload.respuestas,
+        observaciones=payload.observaciones,
+        estado_pago=bool(payload.estado_pago) if payload.estado_pago is not None else False,
+    )
+
+    db.add(sesion)
     db.commit()
-    return {"ok": True}
+    db.refresh(sesion)
+    return {"ok": True, "id": int(sesion.id)}
 
 
 @router.get("/sesion", response_model=List[SesionesSchema])
@@ -372,31 +446,73 @@ def dar_alta(payload: DarAlta, db: Session = Depends(get_db)):
 
 
 @router.post("/tarea")
-def save_tarea(payload: TareasSchema, db: Session = Depends(get_db)):
-    payload.estado = False
-    db.add(payload)
+def save_tarea(payload: TareaIn, db: Session = Depends(get_db)):
+    pac_id = payload.paciente_id or (payload.paciente or {}).get("id")
+    if not pac_id:
+        raise HTTPException(status_code=422, detail="Debe enviar pacienteId o paciente.id")
+
+    t = Tareas(
+        estado=False,
+        paciente_id=int(pac_id),
+        instrucciones=payload.instrucciones,
+    )
+    db.add(t)
     db.commit()
-    return {"ok": True}
+    db.refresh(t)
+    return {"ok": True, "id": int(t.id)}
 
 
-@router.get("/tarea", response_model=List[TareasSchema])
+@router.get("/tarea", response_model=List[TareaOut])
 def get_tareas(id: int = Query(...), db: Session = Depends(get_db)):
     paciente_id = _paciente_id_from_usuario(db, id)
     return db.query(Tareas).filter(Tareas.paciente_id == paciente_id).order_by(Tareas.id.desc()).all()
 
 
 @router.post("/receta")
-def save_receta(payload: List[RecetasSchema], db: Session = Depends(get_db)):
-    for r in payload:
-        db.add(r)
+def save_receta(payload: list[RecetaIn], db: Session = Depends(get_db)):
+
+    rows = []
+    for item in payload:
+        med_id = item.medicamento_id or (item.medicamento or {}).get("id")
+        pac_id = item.paciente_id or (item.paciente or {}).get("id")
+        ses_id = item.sesion_id
+        if ses_id is None:
+            if isinstance(item.sesion, int):
+                ses_id = item.sesion
+            elif isinstance(item.sesion, dict):
+                ses_id = item.sesion.get("id")
+
+        if not med_id or not pac_id:
+            raise HTTPException(status_code=422, detail="Debe enviar medicamento.id y paciente.id")
+
+        receta = Recetas(
+            medicamento_id=int(med_id),
+            paciente_id=int(pac_id),
+            sesion=int(ses_id) if ses_id not in (None, 0) else None,  # si 0 significa null
+            indicaciones=item.indicaciones,
+            cantidad=item.cantidad,
+        )
+        rows.append(receta)
+
+    db.add_all(rows)
     db.commit()
-    return {"ok": True}
+    return {"ok": True, "insertados": len(rows)}
 
-
-@router.get("/receta", response_model=List[RecetasSchema])
+@router.get("/receta", response_model=List[RecetaOut])
 def get_recetas(id: int = Query(...), db: Session = Depends(get_db)):
     paciente_id = _paciente_id_from_usuario(db, id)
-    return db.query(Recetas).filter(Recetas.paciente_id == paciente_id).order_by(Recetas.id.desc()).all()
+
+    data = (
+        db.query(Recetas)
+        .options(
+            joinedload(Recetas.medicamento),
+            joinedload(Recetas.paciente).joinedload(Pacientes.usuario),
+        )
+        .filter(Recetas.paciente_id == paciente_id)
+        .order_by(Recetas.id.desc())
+        .all()
+    )
+    return data
 
 
 @router.post("/tarea/completar")

@@ -4,7 +4,7 @@ from app.core.config import settings
 from app.routers import auth, user, medicamento, empleado, paciente, cita, historia, empresa, admin, general, compra, reportes
 
 app = FastAPI(
-    title="ss1 (FastAPI clone)",
+    title="ss1 PYTHON",
     openapi_url=f"{settings.app_context_path}/v3/api-docs",
     docs_url=f"{settings.app_context_path}/doc/swagger-vi.html",
     redoc_url=None,

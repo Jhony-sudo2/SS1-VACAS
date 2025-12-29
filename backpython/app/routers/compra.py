@@ -159,9 +159,18 @@ def venta_por_id(id: int = Query(...), db: Session = Depends(get_db)):
     return venta
 
 
+class RefId(CamelModel):
+    id: int
+
 class PagoSesionIn(CamelModel):
+    # Forma simple (la que ya usas)
     cita_id: Optional[int] = Field(default=None, alias="citaId")
     sesion_id: Optional[int] = Field(default=None, alias="sesionId")
+
+    # Forma Java (anidada)
+    cita: Optional[RefId] = None
+    sesion: Optional[RefId] = None
+
     tarjeta: Optional[str] = None
     codigo: Optional[str] = None
     fecha_vencimiento: Optional[str] = Field(default=None, alias="fechaVencimiento")
@@ -169,23 +178,20 @@ class PagoSesionIn(CamelModel):
 
 @router.post("/sesion")
 def pagar_sesion(payload: PagoSesionIn, db: Session = Depends(get_db)):
-    """Spring: POST /compra/sesion"""
-    total = 0.0
-
-    cita_id = payload.cita_id
-    sesion_id = payload.sesion_id
+    # 1) normalizar ids: si vienen anidados, tomar esos
+    cita_id = payload.cita_id or (payload.cita.id if payload.cita else None)
+    sesion_id = payload.sesion_id or (payload.sesion.id if payload.sesion else None)
 
     if not cita_id and not sesion_id:
         raise HTTPException(status_code=400, detail="Debe enviar citaId o sesionId")
 
+    # 2) pagar sesión (si viene sesion_id)
     if sesion_id and not cita_id:
-        sesion = db.query(Sesiones).filter(Sesiones.id == sesion_id).first()
+        sesion = db.query(Sesiones).filter(Sesiones.id == int(sesion_id)).first()
         if not sesion:
             raise HTTPException(status_code=404, detail="Sesion no encontrada")
 
-        # costoSesion = historias.costo_sesion
-        from app.models.historias import Historias
-        historia = db.query(Historias).filter(Historias.id == sesion.historia_id).first()
+        historia = sesion.historia  # usa relationship
         total = float(historia.costo_sesion) if historia else 0.0
 
         sesion.estado = ESTADO_PAGADA
@@ -204,13 +210,14 @@ def pagar_sesion(payload: PagoSesionIn, db: Session = Depends(get_db)):
         db.commit()
         return {"ok": True}
 
-    # Pagar cita
+    # 3) pagar cita
     empresa = db.query(Empresa).filter(Empresa.id == 1).first()
     total = float(empresa.precio_cita) if empresa else 0.0
 
-    cita = db.query(Citas).filter(Citas.id == cita_id).first()
+    cita = db.query(Citas).filter(Citas.id == int(cita_id)).first()
     if not cita:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
+
     cita.estado = ESTADO_PAGADA
 
     pago = Pagosesion(
@@ -225,7 +232,6 @@ def pagar_sesion(payload: PagoSesionIn, db: Session = Depends(get_db)):
     db.add(pago)
     db.commit()
     return {"ok": True}
-
 
 @router.get("/sesion", response_model=List[PagoSesionOut])
 def mis_pagos_sesion(id: int = Query(...), db: Session = Depends(get_db)):

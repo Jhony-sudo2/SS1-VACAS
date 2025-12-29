@@ -38,11 +38,9 @@ def listar(db: Session = Depends(get_db)):
 
 @router.post("", response_model=UsuarioOut)
 def crear(payload: UsuarioCreate, db: Session = Depends(get_db)):
-    # 1) email único
     if db.query(Usuarios).filter(Usuarios.email == payload.usuario.email).first():
         raise HTTPException(status_code=400, detail="El correo electrónico ya está asociado a una cuenta")
 
-    # 2) generar verificación (igual Java)
     codigo = mail_service.generar_codigo()
     expira = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=15)
 
@@ -52,21 +50,19 @@ def crear(payload: UsuarioCreate, db: Session = Depends(get_db)):
         rol=rol_to_ordinal(payload.usuario.rol),
         a2f=payload.usuario.a2f,
 
-        email_verificado=False,           # forzado
-        estado=False,                     # recomendado (igual idea Java: activar al confirmar)
-        codigo_verificacion=codigo,        # forzado
-        codigo_verificacion_expira=expira, # forzado
+        email_verificado=False,          
+        estado=False,                   
+        codigo_verificacion=codigo,        
+        codigo_verificacion_expira=expira, 
     )
     db.add(u)
     db.commit()
     db.refresh(u)
 
-    # 3) empleado o paciente (no ambos)
     if payload.empleado and payload.paciente:
         raise HTTPException(status_code=400, detail="Debe enviar empleado o paciente, no ambos")
 
     if payload.empleado:
-        # si estos 3 son NOT NULL en tu BD, asegurá defaults o hacelos obligatorios en schema
         aplica_igss = payload.empleado.aplicaIgss if payload.empleado.aplicaIgss is not None else False
         sueldo = payload.empleado.sueldo if payload.empleado.sueldo is not None else 0
         bono = payload.empleado.bono if payload.empleado.bono is not None else 0
@@ -102,8 +98,7 @@ def crear(payload: UsuarioCreate, db: Session = Depends(get_db)):
         )
         db.add(p)
         db.commit()
-
-    # 4) enviar mail (igual Java)
+    print('pase todo')
     mail_service.enviar_codigo("Confirmacion de correo electronico", u.email, codigo)
 
     db.refresh(u)

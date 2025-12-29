@@ -1,10 +1,11 @@
 from __future__ import annotations
 from datetime import time
 
-from typing import Optional, Any
+from typing import Optional, Union
 from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict
 from pydantic import Field
+from app.schemas.user import PacienteOut
 def to_camel(s: str) -> str:
     parts = s.split('_')
     return parts[0] + ''.join(p.capitalize() for p in parts[1:])
@@ -192,6 +193,20 @@ class RecetasSchema(CamelModel):
     sesion: Optional[int] = None
     indicaciones: Optional[str] = None
 
+class RecetaIn(CamelModel):
+    id: Optional[int] = None
+    cantidad: Optional[int] = None
+    indicaciones: Optional[str] = None
+
+    medicamento: Optional[dict] = None
+    paciente: Optional[dict] = None
+
+    sesion: Optional[Union[int, dict]] = None
+
+    medicamento_id: Optional[int] = Field(default=None, alias="medicamentoId")
+    paciente_id: Optional[int] = Field(default=None, alias="pacienteId")
+    sesion_id: Optional[int] = Field(default=None, alias="sesionId")
+
 class ServiciosSchema(CamelModel):
     id: Optional[int] = None
     descripcion: Optional[str] = None
@@ -209,13 +224,40 @@ class SesionesSchema(CamelModel):
     observaciones: Optional[str] = None
     respuestas: Optional[str] = None
     temas: Optional[str] = None
+class SesionIn(CamelModel):
+    id: Optional[int] = None
+    numero: Optional[int] = None
+    fecha: Optional[datetime] = None
+    estado: Optional[str] = None
+    justificacion: Optional[str] = None
+    temas: Optional[str] = None
+    respuestas: Optional[str] = None
+    observaciones: Optional[str] = None
+    estado_pago: Optional[bool] = Field(default=None, alias="estadoPago")
+    historia: Optional[dict] = None
+    historia_id: Optional[int] = Field(default=None, alias="historiaId")
 
 class TareasSchema(CamelModel):
     estado: Optional[bool] = None
     id: Optional[int] = None
     paciente_id: Optional[int] = None
     instrucciones: Optional[str] = None
+    paciente: Optional[dict] = None
 
+class TareaOut(CamelModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    id: Optional[int] = None
+    instrucciones: Optional[str] = None
+    estado: Optional[bool] = None
+    paciente_id: Optional[int] = Field(default=None, alias="paciente_id")  # opcional
+    paciente: Optional[PacienteOut] = None
+
+class TareaIn(CamelModel):
+    id: Optional[int] = None
+    instrucciones: Optional[str] = None
+    paciente_id: Optional[int] = Field(default=None, alias="pacienteId")
+    paciente: Optional[dict] = None
 class UsuariosSchema(CamelModel):
     a2f: Optional[bool] = None
     email_verificado: Optional[bool] = None
@@ -241,3 +283,26 @@ class VerificacionesSchema(CamelModel):
     id: Optional[int] = None
     codigo: Optional[str] = None
     email: Optional[str] = None
+
+class MedicamentoOut(CamelModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    id: int
+    nombre: Optional[str] = None
+    precio: Optional[float] = None
+    minimo: Optional[int] = None
+    stock: Optional[int] = None
+    tipo: Optional[bool] = None
+    imagen: Optional[str] = None
+
+
+class RecetaOut(CamelModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    id: int
+    cantidad: Optional[int] = None
+    indicaciones: Optional[str] = None
+    sesion: Optional[int] = None
+
+    medicamento: Optional[MedicamentoOut] = None
+    paciente: Optional[PacienteOut] = None
