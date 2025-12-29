@@ -89,7 +89,6 @@ def top_medicamentos(desde: date = Query(...), hasta: date = Query(...), top: in
 
 @router.get("/clinicos/atencion-por-empleado", response_model=List[AtencionEmpleadoDTO])
 def atencion_por_empleado(desde: date = Query(...), hasta: date = Query(...), db: Session = Depends(get_db)):
-    # aproximación: pagos de cita agrupados por empleado de la cita
     from app.models.citas import Citas
     q = (
         db.query(

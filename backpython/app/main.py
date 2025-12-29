@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers (keep same paths as Spring under /api)
 app.include_router(auth.router, prefix=settings.app_context_path)
 app.include_router(user.router, prefix=settings.app_context_path)
 app.include_router(medicamento.router, prefix=settings.app_context_path)

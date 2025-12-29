@@ -178,20 +178,18 @@ class PagoSesionIn(CamelModel):
 
 @router.post("/sesion")
 def pagar_sesion(payload: PagoSesionIn, db: Session = Depends(get_db)):
-    # 1) normalizar ids: si vienen anidados, tomar esos
     cita_id = payload.cita_id or (payload.cita.id if payload.cita else None)
     sesion_id = payload.sesion_id or (payload.sesion.id if payload.sesion else None)
 
     if not cita_id and not sesion_id:
         raise HTTPException(status_code=400, detail="Debe enviar citaId o sesionId")
 
-    # 2) pagar sesión (si viene sesion_id)
     if sesion_id and not cita_id:
         sesion = db.query(Sesiones).filter(Sesiones.id == int(sesion_id)).first()
         if not sesion:
             raise HTTPException(status_code=404, detail="Sesion no encontrada")
 
-        historia = sesion.historia  # usa relationship
+        historia = sesion.historia  
         total = float(historia.costo_sesion) if historia else 0.0
 
         sesion.estado = ESTADO_PAGADA

@@ -105,7 +105,6 @@ ESTADO_INICIAL_MAP = {
     "apetito": "apetito",
     "suenio": "suenio",
     "observaciones": "observaciones",
-    # swagger Java: funcionamientosocial / funcionamientoSocial (depende cómo lo tengas)
     "funcionamientosocial": "funcionamientosocial",
     "funcionamientoSocial": "funcionamientosocial",
 }

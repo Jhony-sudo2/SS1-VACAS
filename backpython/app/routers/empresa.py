@@ -52,7 +52,6 @@ def update_empresa(payload: EmpresaSchema = Body(...), db: Session = Depends(get
         for k, v in data.items():
             setattr(emp, k, v)
     else:
-        # si no mandan id (o mandan 0), intenta actualizar la primera empresa si existe
         emp = db.query(Empresa).order_by(Empresa.id.asc()).first()
         if emp:
             for k, v in data.items():

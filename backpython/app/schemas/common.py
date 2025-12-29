@@ -16,10 +16,10 @@ def to_snake(name: str) -> str:
 
 def filter_model_kwargs(model_cls, data: dict) -> dict:
     mapper = inspect(model_cls)
-    valid_cols = {c.key for c in mapper.columns}  # SOLO columnas
+    valid_cols = {c.key for c in mapper.columns} 
     out = {}
     for k, v in (data or {}).items():
-        if isinstance(v, (dict, list)):  # ignora historia/paciente anidados
+        if isinstance(v, (dict, list)):  
             continue
         sk = to_snake(k)
         if sk in valid_cols:
@@ -29,7 +29,6 @@ def filter_model_kwargs(model_cls, data: dict) -> dict:
     return out
 
 class CamelModel(BaseModel):
-    # Pydantic v2 config
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True,

@@ -20,12 +20,10 @@ class MailService:
         self.password = os.getenv("MAIL_PASSWORD")
         self.starttls = _env_bool("MAIL_STARTTLS", True)
 
-        # Si falta config, no enviamos (opcional)
         self.enabled = all([self.host, self.port, self.username, self.password])
 
     def send_text(self, to: str, subject: str, text: str) -> None:
         if not self.enabled:
-            # En dev podrías loguear en vez de enviar
             print("[MAIL] disabled - would send to:", to, "subject:", subject)
             print(text)
             return
@@ -60,5 +58,4 @@ Este es tu código de verificación desde backend python:
         self.send_text(email, subject, cuerpo)
 
     def generar_codigo(self) -> str:
-        # 6 dígitos como Java
         return f"{secrets.randbelow(1_000_000):06d}"

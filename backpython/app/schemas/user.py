@@ -29,7 +29,6 @@ class UsuarioIn(BaseModel):
     rol: str
     a2f: bool = False
 
-    # campos que Swagger muestra pero vamos a IGNORAR al guardar
     id: Optional[int] = None
     codigoVerificacion: Optional[str] = Field(None, alias="codigo_verificacion")
     codigoVerificacionExpira: Optional[datetime] = Field(None, alias="codigo_verificacion_expira")
@@ -46,7 +45,6 @@ class EmpleadoIn(BaseModel):
     telefono: Optional[str] = None
     colegiado: Optional[str] = None
 
-    # si en tu BD existen (y son NOT NULL), incluilos aquí:
     sueldo: Optional[float] = None
     bono: Optional[float] = None
     aplicaIgss: Optional[bool] = None

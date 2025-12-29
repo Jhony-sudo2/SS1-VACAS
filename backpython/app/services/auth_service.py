@@ -30,10 +30,8 @@ def login(db: Session, email: str, password: str):
     if bool(user.a2f):
         codigo = mail_service.generar_codigo()
 
-        # enviar correo (si MAIL_* está configurado)
         mail_service.enviar_codigo("CONFIRMACION A2F", user.email, codigo)
 
-        # borrar existente email+tipo=1
         existe = (
             db.query(Codigosconfirmacion)
             .filter(Codigosconfirmacion.email == user.email, Codigosconfirmacion.tipo == 1)
@@ -50,7 +48,6 @@ def login(db: Session, email: str, password: str):
 
         return {"token": None, "user": None, "mensaje": "CONFIRMACION_REQUERIDA"}, None
 
-    # sin a2f: token normal
     rol = rol_from_ordinal(int(user.rol)) if user.rol is not None else None
     token = create_access_token(int(user.id), user.email, rol.value if rol else "")
     return {"token": token, "user": {"id": int(user.id), "email": user.email, "rol": rol.value if rol else ""}}, None
@@ -66,7 +63,7 @@ def confirmar_a2f(db: Session, email: str, codigo: str):
         .first()
     )
     if not cc:
-        return None, "El usuario no existe"  # igual que Java (aunque el mensaje sea confuso)
+        return None, "El usuario no existe"  
 
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     if getattr(cc, "vencimiento", None) and cc.vencimiento < now:

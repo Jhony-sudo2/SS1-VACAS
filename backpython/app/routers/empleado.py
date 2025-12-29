@@ -90,7 +90,6 @@ def asignar_horario(payload: List[AsignacionHorarioDTO], db: Session = Depends(g
             h = existe
             db.flush()
 
-        # borrar descansos existentes
         db.query(Descansos).filter(Descansos.horario_id == h.id).delete()
 
         for d in item.descansos:
@@ -126,10 +125,8 @@ def asignar_area(payload: AsignarAreaDT, db: Session = Depends(get_db)):
     if not emp:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
 
-    # Normalizar (por si viene con duplicados)
     nuevas = set(int(x) for x in areas)
 
-    # Validar que todas las áreas existan (en un solo query)
     if nuevas:
         existentes = set(
             r[0] for r in db.query(Areas.id).filter(Areas.id.in_(nuevas)).all()
@@ -138,7 +135,6 @@ def asignar_area(payload: AsignarAreaDT, db: Session = Depends(get_db)):
         if faltantes:
             raise HTTPException(status_code=404, detail=f"Area(s) no encontrada(s): {sorted(faltantes)}")
 
-    # Traer asignaciones actuales del empleado
     actuales_rows = (
         db.query(Asignacionarea)
         .filter(Asignacionarea.empleado_id == id_empleado)
@@ -146,11 +142,9 @@ def asignar_area(payload: AsignarAreaDT, db: Session = Depends(get_db)):
     )
     actuales = set(r.area_id for r in actuales_rows)
 
-    # Calcular diferencias
     a_insertar = nuevas - actuales
     a_eliminar = actuales - nuevas
 
-    # Eliminar las que ya no vienen
     if a_eliminar:
         (
             db.query(Asignacionarea)
