@@ -29,7 +29,7 @@ export class CreatePacienteComponent {
         password: ['', [Validators.required, Validators.minLength(8)]],
         rol: ['PACIENTE', Validators.required],  // puedes cambiar opciones
         a2f: [false],
-        estado: [true]
+        estado: [false]
       }),
       paciente: this.fb.group({
         nombre: ['', Validators.required],

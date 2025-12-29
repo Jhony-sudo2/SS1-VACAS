@@ -13,6 +13,7 @@ export class UserService {
 
   createEmpleado(usuario: Usuario, empleado: Empleado) {
     const data = { usuario, empleado }
+    console.log(data);
     return this.http.post(this.url, data)
   }
 
@@ -68,6 +69,7 @@ export class UserService {
   }
 
   updateEmpleado(empleado: Empleado) {
+    console.log(empleado);
     return this.http.put(this.url + '/empleado', empleado)
   }
 

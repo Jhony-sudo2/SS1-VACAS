@@ -50,15 +50,14 @@ export class SesionComponent  {
 
   // Forms: Prueba
   formPrueba: any = {
-    fecha: '',          // yyyy-MM-dd
+    fecha: '',         
     resultado: null,
     interpretacion: ''
   };
 
-  // Forms: Impresión diagnóstica
   formImpresion: ImpresionDiagnostica = {
     id: undefined,
-    sesion: null as any, // backend lo asigna por sesion enviada
+    sesion: null as any, 
     descripcion: '',
     factoresPredisponentes: '',
     factoresPrecipitantes: '',
@@ -66,18 +65,15 @@ export class SesionComponent  {
     nivelFuncionamiento: ''
   };
 
-  // Forms: Tarea
   formTarea: any = {
     instrucciones: '',
     estado: false
   };
 
-  // Forms: Recetas (lista)
   recetasDraft: Array<{ medicamentoId: number | null; indicaciones: string,cantidad:number }> = [
     { medicamentoId: null, indicaciones: '' ,cantidad:0}
   ];
 
-  // Exponer enums al HTML
   Estado = Estado;
   EstadoHistoria = EstadoHistoria;
 
@@ -110,14 +106,11 @@ export class SesionComponent  {
     });
   }
 
-  // ========= CARGA SESIONES =========
   cargarSesiones(): void {
     if (!this.historia?.id) return;
 
     this.cargandoSesiones = true;
     
-    // ✅ Recomendado: crea/usa un endpoint para listar sesiones por historia
-    // Ej: GET /historia/sesiones?id=HISTORIA_ID
     this.servicio.getSesionesHistoria(this.historia.id as any).subscribe({
       next: (resp) => (this.sesiones = resp ?? []),
       error: (err) => {
@@ -128,7 +121,6 @@ export class SesionComponent  {
     });
   }
 
-  // ========= DISPONIBILIDAD =========
   consultarDisponibilidad(): void {
     this.horariosDisponibles = [];
     this.horarioSeleccionado = null;
@@ -146,13 +138,12 @@ export class SesionComponent  {
       return;
     }
 
-    // Servicio espera fecha (día) y duración en minutos
     this.cargandoDisponibilidad = true;
 
     this.servicio.getHorarios(
       this.empleadoId,
-      this.fechaAgenda,          // yyyy-MM-dd
-      this.historia.duracion     // min
+      this.fechaAgenda,          
+      this.historia.duracion     
     ).subscribe({
       next: (resp) => {
         this.horariosDisponibles = resp;
@@ -190,7 +181,6 @@ export class SesionComponent  {
     ].join(' ');
   }
 
-  // ========= AGENDAR SESION =========
   agendarSesion(): void {
     if (this.historia?.estado === EstadoHistoria.ALTA) {
       Swal.fire({ title: 'Info', text: 'La historia ya está en ALTA.', icon: 'info' });
@@ -213,7 +203,6 @@ export class SesionComponent  {
       return;
     }
 
-    // Construir sesión (tu interface no tiene fecha, se envía como extra)
     const payload: any = {
       id: undefined,
       historia: this.historia,
@@ -239,7 +228,6 @@ export class SesionComponent  {
     });
   }
 
-  // ========= DETALLE SESION =========
   verDetalleSesion(s: Sesion): void {
     this.sesionSeleccionada = s;
     this.detalle = null;
@@ -251,7 +239,6 @@ export class SesionComponent  {
       next: (resp) => {
         this.detalle = resp;
 
-        // precargar impresión si ya existe
         if (resp?.impresionDiagnostica) {
           this.formImpresion = { ...resp.impresionDiagnostica } as any;
         } else {
@@ -270,7 +257,6 @@ export class SesionComponent  {
     });
   }
 
-  // ========= GUARDAR PRUEBA =========
   guardarPrueba(): void {
     if (!this.sesionSeleccionada?.id) return;
 
@@ -303,13 +289,12 @@ export class SesionComponent  {
     });
   }
 
-  // ========= GUARDAR IMPRESION =========
   guardarImpresion(): void {
     if (!this.sesionSeleccionada?.id) return;
 
     const payload: ImpresionDiagnostica = {
       ...(this.formImpresion as any),
-      id: undefined, // si no tenés update, siempre crea (si tenés update, quitá esto)
+      id: undefined, 
       sesion: this.sesionSeleccionada as any
     };
 
@@ -329,7 +314,6 @@ export class SesionComponent  {
     });
   }
 
-  // ========= GUARDAR TAREA =========
   guardarTarea(): void {
     if (!this.historia?.paciente) {
       Swal.fire({ title: 'Error', text: 'No hay paciente en la historia.', icon: 'error' });
@@ -359,7 +343,6 @@ export class SesionComponent  {
     });
   }
 
-  // ========= GUARDAR RECETAS =========
   addRecetaRow(): void {
     this.recetasDraft = [...this.recetasDraft, { medicamentoId: null, indicaciones: '',cantidad:0 }];
   }

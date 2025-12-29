@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { EmpleadoService } from '../../services/Empleado/empleado.service';
-import { Empleado } from '../../interfaces/Usuario';
+import { Empleado, Rol } from '../../interfaces/Usuario';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { UserService } from '../../services/User/user.service';
 export class ListaComponent {
   empleados:Empleado[] = []
   constructor(private servicio:EmpleadoService,private servicio2:UserService){}
+  rol = Rol
 
   ngOnInit(){
     this.servicio.getAllEmpleados().subscribe({

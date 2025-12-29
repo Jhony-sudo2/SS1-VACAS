@@ -74,7 +74,11 @@
             (click)="sidebarOpen = false">
             <span>Mis citas</span>
           </a>
-
+          <a routerLink="/cita-agendar" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Agendar cita</span>
+          </a>
           <a routerLink="/sesiones-citas" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">
@@ -97,6 +101,11 @@
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">
             <span>Comprar</span>
+          </a>
+          <a routerLink="/receta-tareas" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Recetas y tareas</span>
           </a>
         </ng-container>
 
@@ -122,12 +131,6 @@
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">
             <span>Crear historia</span>
-          </a>
-
-          <a routerLink="/receta-tareas" routerLinkActive="bg-sky-500 text-slate-900"
-            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
-            (click)="sidebarOpen = false">
-            <span>Recetas y tareas</span>
           </a>
         </ng-container>
 
@@ -180,7 +183,11 @@
             (click)="sidebarOpen = false">
             <span>Crear usuario</span>
           </a>
-
+          <a routerLink="/empresa" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Empresa</span>
+          </a>
           <a routerLink="/lista-empleado" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">

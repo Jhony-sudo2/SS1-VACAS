@@ -30,7 +30,7 @@ import { SueldoComponent } from './Empleado/sueldo/sueldo.component';
 export const routes: Routes = [
     {path:'auth',component:LoginComponent,title:'login'},
     {path:'recuperar-contrasenia',component:RecupearContraseniaComponent,title:'Recuperar contrasenia'},
-    {path:'paciente-create',component:CreatePacienteComponent,title:'Crear paciente'},
+    {path:'paciente-create',component:CrearPacienteComponent,title:'Crear paciente'},
     {path:'',component:NavComponent,title:'Main',children:[
         { path: '', redirectTo: 'main', pathMatch: 'full' },
         {path:'main',component:MainComponent,title:'MAIN'},

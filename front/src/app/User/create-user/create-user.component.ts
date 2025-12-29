@@ -109,6 +109,8 @@ export class CreateUserComponent implements OnInit {
         // NO reseteamos el form aún, hasta que se confirme el correo
       },
       error: (err) => {
+        console.log(err);
+
         this.loading = false;
         console.log(err);
         Swal.fire({title:'error',text:err.error,icon:'error'})
