@@ -43,13 +43,11 @@ class CompraDetalle(CamelModel):
 
 
 class CompraDTO(CamelModel):
-    paciente_id: int = Field(..., alias="pacienteId")  # usuarioId del paciente en tu front
+    paciente_id: int = Field(..., alias="pacienteId")  
     detalle: List[CompraDetalle]
-    # tipo=true => pago con tarjeta (no entregado), tipo=false => contado (entregado)
     tipo: bool
     tarjeta: Optional[str] = None
     codigo: Optional[str] = None
-    # En tu schema 'ventas.fecha_vencimiento' es varbinary; aquí lo aceptamos como string para compatibilidad del front
     fecha_vencimiento: Optional[str] = Field(default=None, alias="fechaVencimiento")
 
 
@@ -97,7 +95,7 @@ def compra_normal(compra: CompraDTO, db: Session = Depends(get_db)):
         total += float(med.precio) * int(d.cantidad)
 
         detalle_rows.append(Detalleventa(cantidad=int(d.cantidad), medicamento_id=int(med.id)))
-
+    print('TIPO DE COMPRA: ',compra.tipo)
     venta = Ventas(
         paciente_id=paciente_id,
         total=total,
@@ -105,11 +103,11 @@ def compra_normal(compra: CompraDTO, db: Session = Depends(get_db)):
         estado_entrega=(not compra.tipo),
         tarjeta=compra.tarjeta if compra.tipo else None,
         codigo=compra.codigo if compra.tipo else None,
-        fecha_vencimiento=(compra.fecha_vencimiento.encode("utf-8") if (compra.tipo and compra.fecha_vencimiento) else None),
+        fecha_vencimiento=None,
     )
 
     db.add(venta)
-    db.flush()  # obtener venta.id
+    db.flush() 
 
     for det in detalle_rows:
         det.factura_id = int(venta.id)
@@ -131,9 +129,10 @@ def entregar_venta(payload: UpdateEstado, db: Session = Depends(get_db)):
 
 @router.get("/venta", response_model=List[VentaOut])
 def mis_ventas(id: int = Query(...), db: Session = Depends(get_db)):
+    print(id)
     paciente_id = _paciente_id_from_usuario(db, id)
-    return db.query(Ventas).filter(Ventas.paciente_id == paciente_id).order_by(Ventas.id.desc()).all()
-
+    data = db.query(Ventas).filter(Ventas.paciente_id == paciente_id).order_by(Ventas.id.desc()).all()
+    return data
 
 @router.get("/ventas", response_model=List[VentaOut])
 def all_ventas(db: Session = Depends(get_db)):
@@ -247,7 +246,5 @@ def mis_pagos_sesion(id: int = Query(...), db: Session = Depends(get_db)):
         .filter(Historias.paciente_id == paciente_id)
         .all()
     )
-
-    # de-dupe por id
     uniq = {int(p.id): p for p in pagos}
     return list(uniq.values())

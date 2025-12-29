@@ -35,10 +35,6 @@ class PacienteOut(g.PacientesSchema):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
-# -----------------------------
-# Domain entities OUT
-# -----------------------------
-
 class HistoriaOut(CamelModel):
     id: int
     costo_sesion: float = Field(..., alias="costoSesion")

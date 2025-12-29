@@ -25,7 +25,7 @@ def listar(db: Session = Depends(get_db)):
 @router.post("")
 def crear(payload: MedicamentoIn, db: Session = Depends(get_db)):
     imagen_url = upload_base64_to_s3(
-        getattr(payload, "Fotos", None),
+        getattr(payload, "imagen", None),
         key_prefix=f"medicamento_{payload.nombre or 'medicamento'}"
     )
 

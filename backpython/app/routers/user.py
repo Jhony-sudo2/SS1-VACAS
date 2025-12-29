@@ -6,13 +6,16 @@ from app.models.pacientes import Pacientes
 from app.models.empleados import Empleados
 from app.models.verificaciones import Verificaciones
 from app.models.codigosconfirmacion import Codigosconfirmacion
-from app.schemas.auth import UpdateEstado, UpdatePass, RecuperarContrasenia, ConfirmarCodigo, ConfirmarCorreoRequest,UpdatePassword, rol_from_ordinal, rol_to_ordinal
-from app.schemas.user import UsuarioCreate, UsuarioOut, PacienteDTO, EmpleadoOut,PacienteOut
+from app.schemas.auth import UpdateEstado, UpdatePass, RecuperarContrasenia, ConfirmarCorreoRequest,UpdatePassword, rol_from_ordinal, rol_to_ordinal
+from app.schemas.user import UsuarioCreate, UsuarioOut, ConfirmarCorreoIn, EmpleadoOut,PacienteOut
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 import secrets
 from app.schemas.generated import UsuariosSchema
+from app.services.mai_service import MailService
+from fastapi import Body
 
+mail_service = MailService()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -35,21 +38,76 @@ def listar(db: Session = Depends(get_db)):
 
 @router.post("", response_model=UsuarioOut)
 def crear(payload: UsuarioCreate, db: Session = Depends(get_db)):
-    if db.query(Usuarios).filter(Usuarios.email == payload.email).first():
-        raise HTTPException(status_code=409, detail="Email ya existe")
-    hashed = pwd_context.hash(payload.password)
+    # 1) email único
+    if db.query(Usuarios).filter(Usuarios.email == payload.usuario.email).first():
+        raise HTTPException(status_code=400, detail="El correo electrónico ya está asociado a una cuenta")
+
+    # 2) generar verificación (igual Java)
+    codigo = mail_service.generar_codigo()
+    expira = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=15)
+
     u = Usuarios(
-        email=payload.email,
-        password=hashed,
-        rol=rol_to_ordinal(payload.rol),
-        a2f=payload.a2f,
-        estado=payload.estado,
-        email_verificado=payload.email_verificado,
-        codigo_verificacion=None,
-        codigo_verificacion_expira=None,
+        email=payload.usuario.email,
+        password=pwd_context.hash(payload.usuario.password),
+        rol=rol_to_ordinal(payload.usuario.rol),
+        a2f=payload.usuario.a2f,
+
+        email_verificado=False,           # forzado
+        estado=False,                     # recomendado (igual idea Java: activar al confirmar)
+        codigo_verificacion=codigo,        # forzado
+        codigo_verificacion_expira=expira, # forzado
     )
-    db.add(u); db.commit(); db.refresh(u)
-    return user_to_out(u)
+    db.add(u)
+    db.commit()
+    db.refresh(u)
+
+    # 3) empleado o paciente (no ambos)
+    if payload.empleado and payload.paciente:
+        raise HTTPException(status_code=400, detail="Debe enviar empleado o paciente, no ambos")
+
+    if payload.empleado:
+        # si estos 3 son NOT NULL en tu BD, asegurá defaults o hacelos obligatorios en schema
+        aplica_igss = payload.empleado.aplicaIgss if payload.empleado.aplicaIgss is not None else False
+        sueldo = payload.empleado.sueldo if payload.empleado.sueldo is not None else 0
+        bono = payload.empleado.bono if payload.empleado.bono is not None else 0
+
+        e = Empleados(
+            nombre=payload.empleado.nombre,
+            fecha_nacimiento=payload.empleado.fechaNacimiento,
+            genero=payload.empleado.genero,
+            estado_civil=payload.empleado.estadoCivil,
+            telefono=payload.empleado.telefono,
+            colegiado=payload.empleado.colegiado,
+            aplica_igss=aplica_igss,
+            sueldo=sueldo,
+            bono=bono,
+            usuario_id=u.id,
+        )
+        db.add(e)
+        db.commit()
+
+    elif payload.paciente:
+        p = Pacientes(
+            nombre=payload.paciente.nombre,
+            fecha_nacimiento=payload.paciente.fechaNacimiento,
+            genero=payload.paciente.genero,
+            estado_civil=payload.paciente.estadoCivil,
+            direccion=payload.paciente.direccion,
+            nivel_educativo=payload.paciente.nivelEducativo,
+            telefono=payload.paciente.telefono,
+            persona_emergencia=payload.paciente.personaEmergencia,
+            telefono_emergencia=payload.paciente.telefonoEmergencia,
+            procedencia=payload.paciente.procedencia,
+            usuario_id=u.id,
+        )
+        db.add(p)
+        db.commit()
+
+    # 4) enviar mail (igual Java)
+    mail_service.enviar_codigo("Confirmacion de correo electronico", u.email, codigo)
+
+    db.refresh(u)
+    return u
 
 @router.put("/actualizarEstado")
 def actualizar_estado(payload: UpdateEstado, db: Session = Depends(get_db)):
@@ -79,49 +137,64 @@ def update_password(payload: UpdatePassword, db: Session = Depends(get_db)):
     db.refresh(u)
 
     return {"ok": True}
+def cambio_password(db: Session, email: str, nueva: str):
+    u = db.query(Usuarios).filter(Usuarios.email == email).first()
+    if not u:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if len(nueva) < 8:
+        raise HTTPException(status_code=400, detail="La contraseña tiene que tener 8 caracteres")
+
+    u.password = pwd_context.hash(nueva)
+    db.commit()
+    return {"ok": True}
 
 @router.put("/password/cambiar")
 def cambiar_contrasenia(payload: UpdatePass, db: Session = Depends(get_db)):
-    # Spring tiene mismo comportamiento: cambioPassword(email,nueva)
-    return update_password(payload, db)
+    return cambio_password(db,payload.email,payload.nueva)
 
 @router.post("/recuperarcontrasenia")
 def recuperar(payload: RecuperarContrasenia, db: Session = Depends(get_db)):
     u = db.query(Usuarios).filter(Usuarios.email == payload.email).first()
     if not u:
-        # no revelar existencia
-        return {"mensaje": "Si el correo existe, se envió un código"}
-    codigo = str(secrets.randbelow(900000) + 100000)
-    expira = datetime.utcnow() + timedelta(minutes=15)
-    u.codigo_verificacion = codigo
-    u.codigo_verificacion_expira = expira
-    db.commit()
-    # Aquí iría envío correo (MailService). Lo dejamos como no bloqueante.
-    return {"mensaje": "Código generado"}
+        # Java sí revela; si querés idéntico, devolvé 404. 
+        # Si querés “más seguro”, dejalo como está.
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-@router.post("/confirmarcodigo")
-def confirmar_codigo(payload: ConfirmarCodigo, db: Session = Depends(get_db)):
-    u = db.query(Usuarios).filter(Usuarios.email == payload.email).first()
-    if not u or not u.codigo_verificacion:
-        raise HTTPException(status_code=400, detail="Código inválido")
-    if u.codigo_verificacion != payload.codigo:
-        raise HTTPException(status_code=400, detail="Código inválido")
-    if u.codigo_verificacion_expira and u.codigo_verificacion_expira < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Código expirado")
+    codigo = mail_service.generar_codigo()
+    mail_service.enviar_codigo("RECUPERAR CONTRASENIA", u.email, codigo)
+
+    # borrar existente (email + tipo=2)
+    existe = (
+        db.query(Codigosconfirmacion)
+        .filter(Codigosconfirmacion.email == u.email, Codigosconfirmacion.tipo == 2)
+        .first()
+    )
+    if existe:
+        db.delete(existe)
+        db.commit()
+
+    venc = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=15)
+    tmp = Codigosconfirmacion(email=u.email, codigo=codigo, vencimiento=venc, tipo=2)
+    db.add(tmp)
+    db.commit()
+
     return {"ok": True}
 
 @router.post("/confirmarCorreo")
-def confirmar_correo(payload: ConfirmarCorreoRequest, db: Session = Depends(get_db)):
-    # similar a auth/login/a2f pero marca email_verificado
-    u = db.query(Usuarios).filter(Usuarios.email == payload.email).first()
+def confirmar_correo(payload: ConfirmarCorreoIn, db: Session = Depends(get_db)):
+    print(payload.codigo)
+    u = db.query(Usuarios).filter(Usuarios.codigo_verificacion == payload.codigo).first()
     if not u:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    # check in verificaciones
-    ver = db.query(Verificaciones).filter(Verificaciones.email == payload.email, Verificaciones.codigo == payload.codigo).first()
-    if not ver:
-        raise HTTPException(status_code=400, detail="Código inválido")
-    db.delete(ver)
+        raise HTTPException(status_code=400, detail="Código de verificación inválido")
+
+    if not u.codigo_verificacion_expira or u.codigo_verificacion_expira < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="El código de verificación ha expirado")
+
     u.email_verificado = True
+    u.codigo_verificacion = None
+    u.codigo_verificacion_expira = None
+    u.estado = True
     db.commit()
     return {"ok": True}
 
