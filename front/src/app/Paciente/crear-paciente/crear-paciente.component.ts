@@ -13,12 +13,11 @@ import { FormsModule } from '@angular/forms';
 })
 export class CrearPacienteComponent  {
 
-  // FORM USUARIO
   usuario: Usuario = {
     id: undefined,
     email: '',
     password: '',
-    rol: Rol.PACIENTE,      // si backend asigna rol por defecto, dejalo null
+    rol: Rol.PACIENTE,      
     a2f: false,
     estado: true
   };
@@ -27,13 +26,13 @@ export class CrearPacienteComponent  {
   paciente: any = {
     id: undefined,
     nombre: '',
-    fechaNacimiento: '', // trabajamos con input date (string yyyy-MM-dd)
-    genero: true,        // true=Masculino, false=Femenino (ajustá si es al revés)
-    estadoCivil: true,   // true=Casado, false=Soltero (ajustá)
+    fechaNacimiento: '', 
+    genero: true,      
+    estadoCivil: true,   
     direccion: '',
     nivelEducativo: '',
     telefono: '',
-    personEmergencia: '',
+    personaEmergencia: '',
     telefonoEmergencia: '',
     procedencia: '',
     usuario: undefined
@@ -43,7 +42,6 @@ export class CrearPacienteComponent  {
   loadingCrear = false;
   loadingConfirm = false;
 
-  // Confirmación correo
   modoConfirmacion = false;
   codigo = '';
 
@@ -80,7 +78,6 @@ export class CrearPacienteComponent  {
       return;
     }
 
-    // Convertir fecha string -> Date para enviar
     const fechaNac = new Date(this.paciente.fechaNacimiento + 'T00:00:00');
 
     const pacientePayload: Paciente = {
@@ -92,17 +89,17 @@ export class CrearPacienteComponent  {
       direccion: this.paciente.direccion.trim(),
       nivelEducativo: this.paciente.nivelEducativo.trim(),
       telefono: this.paciente.telefono.trim(),
-      personEmergencia: this.paciente.personEmergencia.trim(),
+      personaEmergencia: this.paciente.personEmergencia.trim(),
       telefonoEmergencia: this.paciente.telefonoEmergencia.trim(),
       procedencia: this.paciente.procedencia.trim(),
-      usuario: undefined as any // backend lo asigna
+      usuario: undefined as any 
     };
 
     const usuarioPayload: Usuario = {
       id: undefined,
       email: this.usuario.email.trim(),
       password: this.usuario.password,
-      rol: this.usuario.rol,      // o null si backend lo setea
+      rol: this.usuario.rol,      
       a2f: !!this.usuario.a2f,
       estado: !!this.usuario.estado
     };
@@ -124,6 +121,7 @@ export class CrearPacienteComponent  {
           text: err?.error || 'No se pudo crear el paciente.',
           icon: 'error'
         });
+        this.loadingCrear = true
       },
       complete: () => (this.loadingCrear = false)
     });
@@ -141,8 +139,7 @@ export class CrearPacienteComponent  {
       next: () => {
         Swal.fire({ title: 'Confirmado', text: 'Correo confirmado correctamente.', icon: 'success' });
         this.codigo = '';
-        // opcional: bloquear todo o limpiar formularios
-        // this.resetForm();
+        
       },
       error: (err) => {
         Swal.fire({
@@ -155,7 +152,6 @@ export class CrearPacienteComponent  {
     });
   }
 
-  // opcional
   volverAFormulario(): void {
     this.modoConfirmacion = false;
   }

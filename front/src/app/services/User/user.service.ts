@@ -19,6 +19,8 @@ export class UserService {
 
   createPaciente(usuario: Usuario, paciente: Paciente) {
     const data = { usuario, paciente }
+    console.log('enviando');
+    console.log(data);
     return this.http.post(this.url, data)
   }
 

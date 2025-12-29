@@ -74,6 +74,11 @@
             (click)="sidebarOpen = false">
             <span>Mis citas</span>
           </a>
+          <a routerLink="/ver-historia" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Ver historias</span>
+          </a>
           <a routerLink="/cita-agendar" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">
@@ -85,11 +90,7 @@
             <span>Citas y sesiones</span>
           </a>
 
-          <a routerLink="/pago-sesiones" routerLinkActive="bg-sky-500 text-slate-900"
-            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
-            (click)="sidebarOpen = false">
-            <span>Pago sesiones</span>
-          </a>
+          
 
           <a routerLink="/mis-gastos" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
@@ -139,7 +140,11 @@
           <div class="mt-4 px-3 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
             Administrativo
           </div>
-
+          <a routerLink="/pago-sesiones" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Pago sesiones</span>
+          </a>
           <a routerLink="/entregar-venta" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">
@@ -205,7 +210,16 @@
             (click)="sidebarOpen = false">
             <span>Medicamentos</span>
           </a>
-
+            <a routerLink="/pago-sesiones" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Pago sesiones</span>
+          </a>
+          <a routerLink="/entregar-venta" routerLinkActive="bg-sky-500 text-slate-900"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
+            (click)="sidebarOpen = false">
+            <span>Entregar ventas</span>
+          </a>
           <a routerLink="/reportes" routerLinkActive="bg-sky-500 text-slate-900"
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             (click)="sidebarOpen = false">

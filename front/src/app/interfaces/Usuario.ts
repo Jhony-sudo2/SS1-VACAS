@@ -23,7 +23,7 @@ export interface Paciente{
     direccion:string,
     nivelEducativo:string,
     telefono:string,
-    personEmergencia:string,
+    personaEmergencia:string,
     telefonoEmergencia:string,
     procedencia:String,
     usuario:Usuario

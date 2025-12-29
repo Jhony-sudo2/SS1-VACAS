@@ -166,7 +166,6 @@ export class CrearHistoriaComponent {
       enfoque: this.enfoque
     };
 
-    // Forzar historia null en los 3 objetos, backend lo asigna
     const personalPayload: HistoriaPersonal = { ...(this.personal as any), historia: null };
     const antecedentePayload: Antecedentes = { ...(this.antecedente as any), paciente: null };
     const estadoInicialPayload: EstadoInicial = { ...(this.estadoInicial as any), historia: null };
@@ -177,7 +176,9 @@ export class CrearHistoriaComponent {
         Swal.fire({ title: 'Listo', text: 'Historia creada correctamente.', icon: 'success' });
         this.resetForm();
       },
-      error: (err) => Swal.fire({ title: 'Error', text: err?.error || 'No se pudo crear la historia', icon: 'error' }),
+      error: (err) => {Swal.fire({ title: 'Error', text: err?.error || 'No se pudo crear la historia', icon: 'error' }),
+      this.loading = true
+      },
       complete: () => (this.loading = false)
     });
   }

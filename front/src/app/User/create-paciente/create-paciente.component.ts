@@ -85,7 +85,7 @@ export class CreatePacienteComponent {
       direccion: pacienteForm.direccion,
       nivelEducativo: pacienteForm.nivelEducativo,
       telefono: pacienteForm.telefono,
-      personEmergencia: pacienteForm.personEmergencia,
+      personaEmergencia: pacienteForm.personEmergencia,
       telefonoEmergencia: pacienteForm.telefonoEmergencia,
       procedencia: pacienteForm.procedencia,
       usuario: usuario
