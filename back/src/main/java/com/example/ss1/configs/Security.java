@@ -34,15 +34,17 @@ public class Security {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(
-                "http://front-endss1.s3-website.us-east-2.amazonaws.com",
-                "http://localhost:4200"));
+        // Permitir cualquier origen
+        config.setAllowedOrigins(List.of("*"));
 
+        // Permitir cualquier método
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Permitir cualquier header (importante para preflight)
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false); // sin credenciales
-        // opcional si tu front necesita leer headers custom:
-        // config.setExposedHeaders(List.of("Authorization"));
+
+        // SIN credenciales
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
