@@ -1,5 +1,6 @@
 package com.example.ss1.services;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class EmpresaService {
     @Autowired
     private EmpresaRepo empresaRepo;
     @Autowired
-    private AzureService azureService;
+    private S3Service s3Service;
     @Autowired
     private ServicioRepo servicioRepo;
     @Autowired
@@ -34,8 +35,8 @@ public class EmpresaService {
         orElseThrow(()-> new ApiException("Datos de empresa no cargadaso", HttpStatus.NOT_FOUND));
     }
 
-    public void updateEmpresa(Empresa empresa){
-        String imagen = azureService.uploadBase64(empresa.getImagen(), "IMAGEN", null);
+    public void updateEmpresa(Empresa empresa) throws IOException{
+        String imagen = s3Service.uploadBase64(empresa.getImagen(), "IMAGEN");
         empresa.setImagen(imagen);
         empresaRepo.save(empresa);
     }

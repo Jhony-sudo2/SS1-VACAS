@@ -1,5 +1,7 @@
 package com.example.ss1.controllers;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +20,12 @@ public class AdminController {
     private AdminService adminService;
 
     @PostMapping("/area")
-    public Area saveArea(@RequestBody Area area){
+    public Area saveArea(@RequestBody Area area) throws IOException{
         return adminService.guardarArea(area);
     }
 
     @PostMapping("/servicio")
-    public Servicio saveServicio(@RequestBody Servicio servicio){
+    public Servicio saveServicio(@RequestBody Servicio servicio) throws IOException{
         return adminService.saveServicio(servicio);
     }
 

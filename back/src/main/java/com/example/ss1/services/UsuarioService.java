@@ -84,12 +84,22 @@ public class UsuarioService {
      * Confirmar correo recibiendo el código que el usuario ingresa.
      */
     public void confirmarCorreo(String codigo) {
+        System.out.println("Codigo ingresado: " + codigo);
         Usuario usuario = usuarioRepo.findByCodigoVerificacion(codigo)
-                .orElseThrow(() -> new ApiException("Código de verificación inválido",
+                .orElseThrow(() -> new ApiException("Código de verificación no existe",
                         HttpStatus.BAD_REQUEST));
 
         if (usuario.getCodigoVerificacionExpira() == null ||
                 usuario.getCodigoVerificacionExpira().isBefore(LocalDateTime.now())) {
+            Optional<Paciente> paciente = pacienteRepo.findByUsuarioId(usuario.getId());
+            Optional<Empleado> empleado = empleadoRepo.findByUsuarioId(usuario.getId());
+            if(paciente.isPresent()){
+                pacienteRepo.delete(paciente.get());
+                usuarioRepo.delete(usuario);
+            }else{
+                empleadoRepo.delete(empleado.get());
+                usuarioRepo.delete(usuario);
+            }
             throw new ApiException("El código de verificación ha expirado",
                     HttpStatus.BAD_REQUEST);
         }

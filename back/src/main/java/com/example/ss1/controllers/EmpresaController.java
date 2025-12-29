@@ -1,5 +1,7 @@
 package com.example.ss1.controllers;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,7 +25,7 @@ public class EmpresaController {
     }
 
     @PutMapping()
-    public void updateEmpresa(@RequestBody Empresa empresa){
+    public void updateEmpresa(@RequestBody Empresa empresa) throws IOException{
         empresaService.updateEmpresa(empresa);
     }
 

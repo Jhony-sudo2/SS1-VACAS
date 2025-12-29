@@ -36,9 +36,8 @@ public class UserController {
     }
 
     @PostMapping("/confirmarCorreo")
-    public ResponseEntity<?> confirmarCorreo(@RequestBody ConfirmarCorreoRequest codigo){
+    public void confirmarCorreo(@RequestBody ConfirmarCorreoRequest codigo){
         service.confirmarCorreo(codigo.codigo());
-        return ResponseEntity.ok("Correo confirmaco correctamente");
     }
     
     @PutMapping("/actualizarEstado")

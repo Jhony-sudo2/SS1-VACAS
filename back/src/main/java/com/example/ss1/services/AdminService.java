@@ -1,5 +1,7 @@
 package com.example.ss1.services;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,16 +25,16 @@ public class AdminService {
     @Autowired
     private AsignacionServicioRepo asignacionServicioRepo;
     @Autowired
-    private AzureService azureService;
+    private S3Service s3Service;
 
-    public Area guardarArea(Area data){
-        String imagen = azureService.uploadBase64(data.getImagen(),"area"+data.getNombre(),null);
+    public Area guardarArea(Area data) throws IOException{
+        String imagen = s3Service.uploadBase64(data.getImagen(),"area"+data.getNombre());
         data.setImagen(imagen);
         return areaRepo.save(data);
     }
 
-    public Servicio saveServicio(Servicio servicio){
-        String imagen = azureService.uploadBase64(servicio.getImagen(), "servicio_"+servicio.getNombre(), null);
+    public Servicio saveServicio(Servicio servicio) throws IOException{
+        String imagen = s3Service.uploadBase64(servicio.getImagen(), "servicio_"+servicio.getNombre());
         servicio.setImagen(imagen);
         return servicioRepo.save(servicio);
     }

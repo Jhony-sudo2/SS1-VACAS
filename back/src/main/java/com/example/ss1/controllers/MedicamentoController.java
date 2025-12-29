@@ -1,5 +1,6 @@
 package com.example.ss1.controllers;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class MedicamentoController {
     private MedicamentoService medicamentoService;
 
     @PostMapping()
-    public void saveMedicamento(@RequestBody Medicamento medicamento){
+    public void saveMedicamento(@RequestBody Medicamento medicamento)throws IOException{
          medicamentoService.save(medicamento);
     }
 

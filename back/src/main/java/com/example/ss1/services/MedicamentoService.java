@@ -1,5 +1,6 @@
 package com.example.ss1.services;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,10 @@ public class MedicamentoService {
     @Autowired
     private MedicamentoRepo medicamentoRepo;
     @Autowired
-    private AzureService azureService;
+    private S3Service s3Service;
 
-    public void save(Medicamento medicamento){
-        String imagen = azureService.uploadBase64(medicamento.getImagen(), "med"+medicamento.getId(), null);
+    public void save(Medicamento medicamento) throws IOException{
+        String imagen = s3Service.uploadBase64(medicamento.getImagen(), "med"+medicamento.getId());
         medicamento.setImagen(imagen);
         medicamentoRepo.save(medicamento);
     }
